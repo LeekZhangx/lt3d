@@ -1,6 +1,6 @@
 import { LT_VERSION } from "./version/LtVersion";
 
-const LOCAL_BASE = "/assets"
+const LOCAL_BASE = "./assets"
 const CDN_BASE = ""
 
 const USE_CDN = false
