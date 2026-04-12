@@ -24,6 +24,10 @@ export default defineConfig({
       },
 
       output: {
+        entryFileNames: `lt3d.js`,
+        chunkFileNames: `lt3d.js`,
+        assetFileNames: `lt3d.[ext]`,
+
         globals: {
           three: 'THREE',
           'three-mesh-bvh': 'MeshBVHLib',
