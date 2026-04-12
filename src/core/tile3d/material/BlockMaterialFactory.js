@@ -1,11 +1,10 @@
 import * as THREE from 'three'
-import { LtColor } from '../util/lt/LtColor'
-import { TriplanarUtil } from './sharder/TriplanarUtil'
-import { MaterialFactory } from './materials/MaterialFactory'
-import { FcbMaterialFactory } from './fcb/FcbMaterialFactory'
-import { MaterialResolver } from './materials/MaterialResolver'
-import { TextureCache } from '../texture/TextureCache'
-import { BoxMappingUtil } from './sharder/BoxMappingUtil'
+import { LtColor } from '../util/lt/LtColor.js'
+import { MaterialFactory } from './materials/MaterialFactory.js'
+import { FcbMaterialFactory } from './fcb/FcbMaterialFactory.js'
+import { MaterialResolver } from './materials/MaterialResolver.js'
+import { TextureCache } from '../texture/TextureCache.js'
+import { BoxMappingUtil } from './sharder/BoxMappingUtil.js'
 
 
 /**

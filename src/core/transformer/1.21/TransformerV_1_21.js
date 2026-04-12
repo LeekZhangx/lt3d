@@ -1,7 +1,7 @@
-import { AstTransformJsonError } from '../../error/stages/AstTransformJsonError'
-import { ERROR_KEY } from '../../error/ErrorKey'
-import { ElementHandlerV_1_21 } from './handlers/ElementHandlerV_1_21'
-import { BaseTransformer } from '../BaseTransformer'
+import { AstTransformJsonError } from '../../error/stages/AstTransformJsonError.js'
+import { ERROR_KEY } from '../../error/ErrorKey.js'
+import { ElementHandlerV_1_21 } from './handlers/ElementHandlerV_1_21.js'
+import { BaseTransformer } from '../BaseTransformer.js'
 
 /**
  * ast -> ltObj 转换器

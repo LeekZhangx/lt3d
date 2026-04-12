@@ -1,4 +1,4 @@
-import { BlockTextureResolver } from "./BlockTextureResolver"
+import { BlockTextureResolver } from "./BlockTextureResolver.js"
 
 export class BlockTextureResolverV_1_12  extends BlockTextureResolver{
 

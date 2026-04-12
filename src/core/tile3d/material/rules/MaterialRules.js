@@ -1,4 +1,4 @@
-import { MaterialType } from "../MaterialType";
+import { MaterialType } from "../MaterialType.js";
 
 /**
  * 材质类别 与 对应的MaterialType

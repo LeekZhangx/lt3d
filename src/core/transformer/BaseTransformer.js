@@ -1,6 +1,6 @@
-import { AstTransformJsonError } from "../error"
-import { ERROR_KEY } from "../error/ErrorKey"
-import { Result } from "../util/Result"
+import { AstTransformJsonError } from "../error/index.js"
+import { ERROR_KEY } from "../error/ErrorKey.js"
+import { Result } from "../util/Result.js"
 
 /**
  * ast -> ltObj 转换器

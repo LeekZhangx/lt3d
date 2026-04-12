@@ -1,4 +1,4 @@
-import { LT_VERSION } from "./LtVersion"
+import { LT_VERSION } from "./LtVersion.js"
 
 export class VersionDetector {
 

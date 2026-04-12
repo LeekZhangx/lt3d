@@ -1,4 +1,4 @@
-import { LtUtil } from "../../util/lt/LtUtil"
+import { LtUtil } from "../../util/lt/LtUtil.js"
 
 /**
  * 将 mask 和 offset 信息解析并格式化

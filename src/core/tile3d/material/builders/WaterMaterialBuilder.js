@@ -1,5 +1,5 @@
-import { MeshStandardMaterial, Color } from "../../Three"
-import { IMaterialBuilder } from "./IMaterialBuilder"
+import { MeshStandardMaterial, Color } from "../../Three.js"
+import { IMaterialBuilder } from "./IMaterialBuilder.js"
 
 /**
  * 生成 THREE.MeshStandardMaterial 液体材质

@@ -1,6 +1,6 @@
-import { VersionDetector } from "../version/VersionDetector"
-import { ParserRegistry } from "../parser/ParserRegistry"
-import { TransformRegistry } from "../transformer/TransformRegistry"
+import { VersionDetector } from "../version/VersionDetector.js"
+import { ParserRegistry } from "../parser/ParserRegistry.js"
+import { TransformRegistry } from "../transformer/TransformRegistry.js"
 
 /**
  * LtObj构建器

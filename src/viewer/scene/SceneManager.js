@@ -1,5 +1,5 @@
-import { TextureCache } from '../../core/tile3d/texture/TextureCache'
-import { ModelManager } from '../model/ModelManager'
+import { TextureCache } from '../../core/tile3d/texture/TextureCache.js'
+import { ModelManager } from '../model/ModelManager.js'
 import * as THREE from 'three'
 
 /**

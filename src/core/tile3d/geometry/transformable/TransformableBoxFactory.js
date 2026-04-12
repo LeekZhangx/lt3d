@@ -1,11 +1,11 @@
 import * as THREE from 'three'
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils'
-import { RuleTableFormatter } from './RuleTableFormatter'
-import { BoxFlipUtil } from './BoxFlipUtil'
-import { BoxOffsetUtil } from './BoxOffsetUtil'
-import { GeoFaceOptimizeUtli } from './util/GeoFaceOptimizeUtil'
-import { FaceCornerMoveUtil } from './util/FaceCornerMoveUtli'
 import { Brush, Evaluator, INTERSECTION } from 'three-bvh-csg'
+import { RuleTableFormatter } from './RuleTableFormatter.js'
+import { BoxFlipUtil } from './BoxFlipUtil.js'
+import { BoxOffsetUtil } from './BoxOffsetUtil.js'
+import { GeoFaceOptimizeUtli } from './util/GeoFaceOptimizeUtil.js'
+import { FaceCornerMoveUtil } from './util/FaceCornerMoveUtli.js'
 
 /**
  * 可变形Box工厂

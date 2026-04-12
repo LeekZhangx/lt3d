@@ -1,8 +1,8 @@
 import { Color } from "three"
-import { FcbMaterialType } from "./FcbMaterialType"
-import { GlassMaterialBuilder } from "../builders/GlassMaterialBuilder"
-import { CommonMaterialBuilder } from "../builders/CommonMaterialBuilder"
-import { FcbTransfer } from "./FcbTransfer"
+import { FcbMaterialType } from "./FcbMaterialType.js"
+import { GlassMaterialBuilder } from "../builders/GlassMaterialBuilder.js"
+import { CommonMaterialBuilder } from "../builders/CommonMaterialBuilder.js"
+import { FcbTransfer } from "./FcbTransfer.js"
 
 /**
  * Fcb 材质工厂

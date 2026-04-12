@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { GUI } from 'lil-gui'
-import { StatsManager } from './StatsManager'
-import { GuiTheme } from '../util/GuiTheme'
+import { StatsManager } from './StatsManager.js'
+import { GuiTheme } from '../util/GuiTheme.js'
 
 
 /**

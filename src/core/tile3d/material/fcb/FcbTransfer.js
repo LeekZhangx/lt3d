@@ -1,4 +1,4 @@
-import { FCB_DATA_1_12 } from './data/fcbData_1.12'
+import { FCB_DATA_1_12 } from './data/fcbData_1.12.js'
 
 /**
  * FCB(Flat Colored Blocks) 方块信息转换

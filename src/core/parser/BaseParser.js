@@ -1,6 +1,6 @@
-import { Result } from '../util/Result'
-import { ParseError, TokenizeError } from '../error'
-import { ERROR_KEY } from '../error/ErrorKey'
+import { Result } from '../util/Result.js'
+import { ParseError, TokenizeError } from '../error/index.js'
+import { ERROR_KEY } from '../error/ErrorKey.js'
 
 /**
  * Lt txt文本 解析器，将txt字符串解析成ast对象

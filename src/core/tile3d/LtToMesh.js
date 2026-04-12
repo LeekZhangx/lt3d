@@ -1,10 +1,10 @@
 import * as THREE from 'three'
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js'
-import { BlockGeometryFactory } from './geometry/BlockGeometryFactory';
-import { BlockMaterialFactory } from './material/BlockMaterialFactory'
-import { BlockMeshFactory } from './BlockMeshFactory';
-import { BlockTextureResolverFactory } from './texture/BlockTextureResolverFactory';
-import { LtAdapterFactory } from '../adapter/LtAdapterFactory';
+import { BlockGeometryFactory } from './geometry/BlockGeometryFactory.js';
+import { BlockMaterialFactory } from './material/BlockMaterialFactory.js'
+import { BlockMeshFactory } from './BlockMeshFactory.js';
+import { BlockTextureResolverFactory } from './texture/BlockTextureResolverFactory.js';
+import { LtAdapterFactory } from '../adapter/LtAdapterFactory.js';
 
 
 /**

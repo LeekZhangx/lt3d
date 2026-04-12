@@ -1,7 +1,7 @@
 import { GUI } from 'lil-gui'
-import { DebugMode } from './DebugMode'
-import { DebugManager } from './DebugManager'
-import { GuiTheme } from '../util/GuiTheme'
+import { DebugMode } from './DebugMode.js'
+import { DebugManager } from './DebugManager.js'
+import { GuiTheme } from '../util/GuiTheme.js'
 
 /**
  * 几何体 Debug GUI 控制面板

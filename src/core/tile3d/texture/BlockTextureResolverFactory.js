@@ -1,9 +1,9 @@
-import { TEXTURE_PATH_CONFIG } from "../../config"
-import { LT_VERSION } from "../../version/LtVersion"
-import { BlockTextureResolver } from "./BlockTextureResolver"
-import { BlockTextureResolverV_1_12 } from "./BlockTextureResolverV_1_12"
-import { BlockTextureResolverV_1_21 } from "./BlockTextureResolverV_1_21"
-import { BLOCK_TEXTURE_TABLE_1_12 } from "./data/BlockTextureTable_v1.12"
+import { TEXTURE_PATH_CONFIG } from "../../config.js"
+import { LT_VERSION } from "../../version/LtVersion.js"
+import { BlockTextureResolver } from "./BlockTextureResolver.js"
+import { BlockTextureResolverV_1_12 } from "./BlockTextureResolverV_1_12.js"
+import { BlockTextureResolverV_1_21 } from "./BlockTextureResolverV_1_21.js"
+import { BLOCK_TEXTURE_TABLE_1_12 } from "./data/BlockTextureTable_v1.12.js"
 
 export class BlockTextureResolverFactory {
 

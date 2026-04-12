@@ -1,4 +1,4 @@
-import { BaseError } from '../BaseError'
+import { BaseError } from '../BaseError.js'
 /**
  * ParseError 语法分析错误
  *

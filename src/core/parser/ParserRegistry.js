@@ -1,5 +1,5 @@
-import { LT_VERSION } from '../version/LtVersion'
-import { BaseParser } from './BaseParser'
+import { LT_VERSION } from '../version/LtVersion.js'
+import { BaseParser } from './BaseParser.js'
 
 const registry = {
   [LT_VERSION.V_1_12]: BaseParser,

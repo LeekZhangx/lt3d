@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper.js'
-import { DebugMode } from './DebugMode'
+import { DebugMode } from './DebugMode.js'
 
 /**
  * 几何调试

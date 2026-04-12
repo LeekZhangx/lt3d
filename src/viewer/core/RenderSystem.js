@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { ModelManager } from '../model/ModelManager'
+import { ModelManager } from '../model/ModelManager.js'
 
 /**
  * 画面渲染系统

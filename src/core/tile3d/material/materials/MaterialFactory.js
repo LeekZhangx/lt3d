@@ -1,9 +1,9 @@
-import { MaterialType } from "../MaterialType"
-import { GlassMaterialBuilder } from "../builders/GlassMaterialBuilder"
-import { IceMaterialBuilder } from "../builders/IceMaterialBuilder"
-import { LeavesMaterialBuilder } from "../builders/LeavesMaterialBuilder"
-import { CommonMaterialBuilder } from "../builders/CommonMaterialBuilder"
-import { WaterMaterialBuilder } from "../builders/WaterMaterialBuilder"
+import { MaterialType } from "../MaterialType.js"
+import { GlassMaterialBuilder } from "../builders/GlassMaterialBuilder.js"
+import { IceMaterialBuilder } from "../builders/IceMaterialBuilder.js"
+import { LeavesMaterialBuilder } from "../builders/LeavesMaterialBuilder.js"
+import { CommonMaterialBuilder } from "../builders/CommonMaterialBuilder.js"
+import { WaterMaterialBuilder } from "../builders/WaterMaterialBuilder.js"
 
 /**
  * 原版mc材质工厂

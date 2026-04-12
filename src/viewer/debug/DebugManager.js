@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import { DebugGeometry } from './DebugGeometry'
-import { DebugHelper } from './DebugHelper'
-import { DebugMode } from './DebugMode'
+import { DebugGeometry } from './DebugGeometry.js'
+import { DebugHelper } from './DebugHelper.js'
+import { DebugMode } from './DebugMode.js'
 
 /**
  * 几何体 Debug 管理器

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { TransformableBoxFactory } from './transformable/TransformableBoxFactory'
-import { CommonBoxFactory } from './common/CommonBoxFactory'
+import { TransformableBoxFactory } from './transformable/TransformableBoxFactory.js'
+import { CommonBoxFactory } from './common/CommonBoxFactory.js'
 
 /**
  * ============================================================

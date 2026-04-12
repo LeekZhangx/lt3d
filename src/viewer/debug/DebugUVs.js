@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { UVsDebug } from 'three/examples/jsm/utils/UVsDebug'
-import { UV_TEXTURE_PATH } from '../config/config';
+import { UVsDebug } from 'three/examples/jsm/utils/UVsDebug.js'
+import { UV_TEXTURE_PATH } from '../config/config.js';
 
 export class DebugUVs{
 

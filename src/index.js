@@ -1,9 +1,9 @@
-export { LtObjBuilder } from "./core/builder/LtObjBuilder"
+export { LtObjBuilder } from "./core/builder/LtObjBuilder.js"
 
-export { LtToMesh } from "./core/tile3d/LtToMesh"
-export { TextureCache } from "./core/tile3d/texture/TextureCache"
+export { LtToMesh } from "./core/tile3d/LtToMesh.js"
+export { TextureCache } from "./core/tile3d/texture/TextureCache.js"
 
-export { LtViewer } from "./viewer/LtViewer"
+export { LtViewer } from "./viewer/LtViewer.js"
 
 //1. const ltObj = LtObjBuilder.buildFromTxt(txt)
 

@@ -1,7 +1,7 @@
-import { LT_VERSION } from '../version/LtVersion'
-import { TransformerV_1_21 } from './1.21/TransformerV_1_21'
-import { TransformerV_1_12 } from './1.12/TransformerV_1_12'
-import { BaseTransformer } from './BaseTransformer'
+import { LT_VERSION } from '../version/LtVersion.js'
+import { TransformerV_1_21 } from './1.21/TransformerV_1_21.js'
+import { TransformerV_1_12 } from './1.12/TransformerV_1_12.js'
+import { BaseTransformer } from './BaseTransformer.js'
 
 
 const registry = {

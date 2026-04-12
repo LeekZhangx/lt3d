@@ -1,6 +1,6 @@
-import { LT_VERSION } from "./version/LtVersion";
+import { LT_VERSION } from "./version/LtVersion.js";
 
-const LOCAL_BASE = "./assets"
+const LOCAL_BASE = import.meta.env.BASE_URL + "assets"
 const CDN_BASE = ""
 
 const USE_CDN = false

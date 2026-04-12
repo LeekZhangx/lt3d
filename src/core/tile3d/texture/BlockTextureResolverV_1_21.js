@@ -1,4 +1,4 @@
-import { BlockTextureResolver } from "./BlockTextureResolver"
+import { BlockTextureResolver } from "./BlockTextureResolver.js"
 /**
  * 该版本方块命名方式扁平化，大部分可以直接匹配纹理贴图
  */

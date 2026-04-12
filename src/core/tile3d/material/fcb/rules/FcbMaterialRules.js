@@ -1,4 +1,4 @@
-import { FcbMaterialType } from "../FcbMaterialType";
+import { FcbMaterialType } from "../FcbMaterialType.js";
 
 /**
  * Fcb 材质类别 与 对应的MaterialType

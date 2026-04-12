@@ -1,5 +1,5 @@
-import { MeshPhysicalMaterial, Color } from "../../Three"
-import { IMaterialBuilder } from "./IMaterialBuilder"
+import { MeshPhysicalMaterial, Color } from "../../Three.js"
+import { IMaterialBuilder } from "./IMaterialBuilder.js"
 
 /**
  * 生成 THREE.MeshPhysicalMaterial 玻璃 材质

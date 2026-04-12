@@ -1,4 +1,4 @@
-import { BaseError } from '../BaseError'
+import { BaseError } from '../BaseError.js'
 /**
  * SemanticError 语义错误
  *

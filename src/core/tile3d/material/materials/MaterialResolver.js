@@ -1,7 +1,7 @@
-import { MaterialRules } from '../rules/MaterialRules'
-import { FcbMaterialRules } from '../fcb/rules/FcbMaterialRules'
-import { FcbMaterialFactory } from '../fcb/FcbMaterialFactory'
-import { MaterialFactory } from './MaterialFactory'
+import { MaterialRules } from '../rules/MaterialRules.js'
+import { FcbMaterialRules } from '../fcb/rules/FcbMaterialRules.js'
+import { FcbMaterialFactory } from '../fcb/FcbMaterialFactory.js'
+import { MaterialFactory } from './MaterialFactory.js'
 
 /**
  * 材质规则处理，根据材质判断对象的结果，给出对应的材质类型

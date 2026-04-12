@@ -1,7 +1,7 @@
 import { GUI } from 'lil-gui'
-import { SceneManager } from './SceneManager'
-import { GuiTheme } from '../util/GuiTheme'
-import { SCENE_CONFIG } from '../config/config'
+import { SceneManager } from './SceneManager.js'
+import { GuiTheme } from '../util/GuiTheme.js'
+import { SCENE_CONFIG } from '../config/config.js'
 
 /**
  * 场景环境 GUI 控制面板

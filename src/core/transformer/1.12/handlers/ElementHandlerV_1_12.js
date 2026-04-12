@@ -1,5 +1,5 @@
-import { AstTransformJsonError } from "../../../error"
-import { ERROR_KEY } from "../../../error/ErrorKey"
+import { AstTransformJsonError } from "../../../error/index.js"
+import { ERROR_KEY } from "../../../error/ErrorKey.js"
 
 export class ElementHandlerV_1_12{
 

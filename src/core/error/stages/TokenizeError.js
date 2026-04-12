@@ -1,4 +1,4 @@
-import { BaseError } from '../BaseError'
+import { BaseError } from '../BaseError.js'
 /**
  * TokenizeError 词法分析错误
  *

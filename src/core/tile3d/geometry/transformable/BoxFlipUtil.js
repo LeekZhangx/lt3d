@@ -1,4 +1,4 @@
-import { FaceFlipUtil } from "./util/FaceFlipUtil"
+import { FaceFlipUtil } from "./util/FaceFlipUtil.js"
 
 /**
  * TransformableBox 平面对角线 翻转 flip工具
