@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lt3D Viewer</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .app {
+      width: 95%;
+      max-width: 1400px;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      background: #1e293b;
+      border-radius: 12px;
+      align-items: center;
+    }
+
+    .toolbar input[type="file"] {
+      color: #e2e8f0;
+    }
+
+    .toolbar button {
+      background: #3b82f6;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .toolbar button:hover {
+      background: #2563eb;
+    }
+
+    .content {
+      flex: 1;
+      display: flex;
+      gap: 12px;
+      min-height: 0;
+    }
+
+    .editor {
+      width: 35%;
+      background: #020617;
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .toolbar .icon-btn {
+      background-color: lightgray;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: #94a3b8;
+      transition: 0.2s;
+    }
+
+    .toolbar .icon-btn.active {
+      background-color: #ffffff;
+    }
+
+    .toolbar .icon-btn:hover {
+      background-color: lightcyan;
+    }
+
+    textarea {
+      flex: 1;
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: #e2e8f0;
+      resize: none;
+      outline: none;
+      font-family: monospace;
+      font-size: 13px;
+    }
+
+    .viewer {
+      flex: 1;
+      background: #020617;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    #lt-viewer {
+      position: relative;
+      overflow: visible !important;
+      width: 100%;
+      height: 100%;
+    }
+
+    .lil-gui {
+      position: relative;
+      top: -100%;
+      left: calc(100% - 260px);
+      width: 260px !important;
+      z-index: 10 !important;
+    }
+  </style>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.182.0/build/three.module.js",
+      "three/examples/jsm/": "https://unpkg.com/three@0.182.0/examples/jsm/",
+      "three-mesh-bvh": "https://unpkg.com/three-mesh-bvh@0.7.0/build/index.module.js",
+      "three-bvh-csg": "https://unpkg.com/three-bvh-csg@0.0.18/build/index.module.js",
+      "lil-gui": "https://cdn.jsdelivr.net/npm/lil-gui@0.21/+esm"
+    }
+  }
+  </script>
+
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- 工具栏 -->
+    <div class="toolbar">
+      <input type="file" id="fileInput" accept=".txt" />
+      <button id="showBtn">Show</button>
+
+      <!-- Scene -->
+      <button id="sceneBtn" class="icon-btn">
+        <i class="bi bi-leaf" style="color: green;"></i>
+      </button>
+
+      <!-- Stats -->
+      <button id="statsBtn" class="icon-btn">
+        <i class="bi bi-info-circle" style="color: purple;"></i>
+      </button>
+
+      <!-- Debug -->
+      <button id="debugBtn" class="icon-btn">
+        <i class="bi bi-bug" style="color: orangered;"></i>
+      </button>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="content">
+      <div class="editor">
+        <textarea id="textInput"></textarea>
+      </div>
+
+      <div class="viewer" id="viewer">
+        <div id="lt-viewer"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { LtObjBuilder, LtViewer } from "../dist/lt3d.es.js"
+
+    const defaultTxt = '{boxes:1,grid:1,min:[I;0,0,0],size:[I;1,1,1],t:{"minecraft:iron_block":[[I;-1],[I;0,0,0,1,1,1]]},tiles:1}'
+
+    let showScene = false
+    let showStats = false
+    let showDebug = false
+
+    const viewerContainer = document.getElementById("lt-viewer")
+
+    const sceneBtn = document.getElementById("sceneBtn")
+    const statsBtn = document.getElementById("statsBtn")
+    const debugBtn = document.getElementById("debugBtn")
+
+    function updateButtons() {
+      // Scene
+      sceneBtn.classList.toggle("active", showScene)
+      sceneBtn.innerHTML = `<i class="bi ${showScene ? 'bi-leaf-fill' : 'bi-leaf'}" style="color: green;"></i>`
+
+      // Stats
+      statsBtn.classList.toggle("active", showStats)
+      statsBtn.innerHTML = `<i class="bi ${showStats ? 'bi-info-circle-fill' : 'bi-info-circle'}" style="color: purple;"></i>`
+
+      // Debug
+      debugBtn.classList.toggle("active", showDebug)
+      debugBtn.innerHTML = `<i class="bi ${showDebug ? 'bi-bug-fill' : 'bi-bug'}" style="color: orangered;"></i>`
+    }
+
+    sceneBtn.addEventListener("click", () => {
+      viewer.toggleScenePanel(viewerContainer)
+      showScene = viewer.isScenePanelVisible || false
+      updateButtons()
+    })
+
+    statsBtn.addEventListener("click", () => {
+      viewer.toggleStatsPanel(viewerContainer)
+      showStats = viewer.isStatsPanelVisible || false
+      updateButtons()
+    })
+
+    debugBtn.addEventListener("click", () => {
+      viewer.toggleDebugPanel(viewerContainer)
+      showDebug = viewer.isDebugPanelVisible || false
+      updateButtons()
+    })
+
+
+    updateButtons()
+
+
+    const textarea = document.getElementById("textInput")
+    const fileInput = document.getElementById("fileInput")
+    const showBtn = document.getElementById("showBtn")
+
+    textarea.value = defaultTxt
+
+    const containerDiv = document.getElementById("lt-viewer")
+    const viewer = new LtViewer(containerDiv)
+    viewer.init()
+
+    function renderFromText(txt) {
+      try {
+        const ltObj = LtObjBuilder.buildFromTxt(txt)
+
+        if (viewer.clear) viewer.clear()
+
+        viewer.loadModelFromLtObj(ltObj, 'model')
+      } catch (e) {
+        console.error(e)
+        alert("Parsing error, please check the txt format.")
+      }
+    }
+
+    // 文件选择
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0]
+      if (!file) return
+
+      const reader = new FileReader()
+      reader.onload = () => {
+        textarea.value = reader.result
+      }
+      reader.readAsText(file)
+    })
+
+    // 点击 show
+    showBtn.addEventListener("click", () => {
+      const txt = textarea.value.trim()
+      renderFromText(txt)
+    })
+
+    // 初始渲染
+    renderFromText(defaultTxt)
+
+  </script>
+</body>
+</html>

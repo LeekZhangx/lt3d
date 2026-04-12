@@ -1,0 +1,46 @@
+{
+  "name": "lt3d",
+  "version": "0.1.0",
+  "description": "Lightweight 3D toolkit based on Three.js",
+  "type": "module",
+
+  "main": "dist/lt3d.umd.js",
+  "module": "dist/lt3d.es.js",
+
+  "exports": {
+    ".": {
+      "import": "./dist/lt3d.es.js",
+      "require": "./dist/lt3d.umd.js"
+    },
+    "./src/*": "./src/*"
+  },
+
+  "files": [
+    "dist",
+    "src"
+  ],
+
+  "scripts": {
+    "build": "vite build"
+  },
+
+  "keywords": [
+    "littletiles",
+    "three",
+    "3d",
+    "webgl",
+    "lt3d"
+  ],
+
+  "license": "MIT",
+
+  "peerDependencies": {
+    "three": "^0.182.0",
+    "three-bvh-csg": "^0.0.18",
+    "lil-gui": "^0.21.0"
+  },
+
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}
