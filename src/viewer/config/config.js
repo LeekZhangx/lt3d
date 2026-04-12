@@ -1,11 +1,9 @@
-const base = import.meta.env.BASE_URL
-
 /**
  * uv贴图路径
  */
-export const UV_TEXTURE_PATH = base + 'assets/uv_grid_opengl.png'
+export const UV_TEXTURE_PATH = '/assets/uv_grid_opengl.png'
 
-
+const base = import.meta.env.BASE_URL
 
 /**
  * 场景配置
@@ -18,17 +16,17 @@ export const SCENE_CONFIG = {
   ground: {
     textures: {
       Stone: {
-        path: base + 'assets/texture-1.12/minecraft/blocks/stone.png'
+        path: '/assets/texture-1.12/minecraft/blocks/stone.png'
       },
       Grass: {
-        path: base + 'assets/texture-1.12/minecraft/blocks/grass_top.png',
+        path: '/assets/texture-1.12/minecraft/blocks/grass_top.png',
         color: '#AAFAA4'
       },
       Sand: {
-        path: base + 'assets/texture-1.12/minecraft/blocks/sand.png'
+        path: '/assets/texture-1.12/minecraft/blocks/sand.png'
       },
       IronBlock: {
-        path: base + 'assets/texture-1.12/minecraft/blocks/iron_block.png'
+        path: '/assets/texture-1.12/minecraft/blocks/iron_block.png'
       }
     }
   }
