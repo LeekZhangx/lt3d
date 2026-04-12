@@ -1,6 +1,6 @@
-import { LT_VERSION } from "../version/LtVersion"
-import { LtAdapterV_1_12 } from "./LtAdapterV_1_12"
-import { LtAdapterV_1_21 } from "./LtAdapterV_1_21"
+import { LT_VERSION } from "../version/LtVersion.js"
+import { LtAdapterV_1_12 } from "./LtAdapterV_1_12.js"
+import { LtAdapterV_1_21 } from "./LtAdapterV_1_21.js"
 
 export class LtAdapterFactory {
 

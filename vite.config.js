@@ -1,15 +1,16 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+  base: './',
   build: {
-    outDir: 'dist',
+    outDir: 'docs',
 
-    lib: {
-      entry: './src/index.js',
-      name: 'Lt3D',
-      formats: ['es', 'umd'],
-      fileName: (format) => `lt3d.${format}.js` 
-    },
+    // lib: {
+    //   entry: './src/index.js',
+    //   name: 'Lt3D',
+    //   formats: ['es', 'umd'],
+    //   fileName: (format) => `lt3d.${format}.js` 
+    // },
 
     rollupOptions: {
       external: (id) => {
