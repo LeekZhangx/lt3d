@@ -22,7 +22,9 @@ export class ModelManager {
   }
 
   /**
-   * 设置新的3D对象，如有旧的存在，会清除
+   * 设置新的3D对象，会清除旧的对象
+   * 
+   * 不会主动调用 analyze()
    *
    * @param {THREE.Object3D} obj
    */
@@ -35,8 +37,6 @@ export class ModelManager {
 
     this.modelRoot = obj
     this.scene.add(obj)
-
-    this.analyze()
   }
 
   /**
@@ -70,6 +70,33 @@ export class ModelManager {
   }
 
   /**
+   * 获取模型的包围盒
+   *
+   * @returns {THREE.Box3}
+   */
+  getBox(){
+    return this.box.clone()
+  }
+
+  /**
+   * 获取模型包围盒尺寸
+   *
+   * @returns {THREE.Vector3}
+   */
+  getSize(){
+    return this.size.clone()
+  }
+
+  /**
+   * 获取模型包围盒中心位置
+   *
+   * @returns {THREE.Vector3}
+   */
+  getCenter(){
+    return this.center.clone()
+  }
+
+  /**
    * 清除当前场景中的3D对象
    */
   clearModel(){
@@ -83,6 +110,8 @@ export class ModelManager {
    * 解析当前几何体的 尺寸 和 中心位置，
    *
    * 并赋值给当前的 ModelManager 的 size 和 center 属性
+   * 
+   * 一般在模型更新后使用
    *
    * @returns {boolean} 成功解析返回 true
    */

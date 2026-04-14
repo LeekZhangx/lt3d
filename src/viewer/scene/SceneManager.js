@@ -1,6 +1,5 @@
-import { TextureCache } from '../../core/tile3d/texture/TextureCache.js'
-import { ModelManager } from '../model/ModelManager.js'
 import * as THREE from 'three'
+import { TextureCache } from '../../core/tile3d/texture/TextureCache.js'
 
 /**
  * 场景管理器
@@ -13,25 +12,27 @@ export class SceneManager {
     this.lights = {}
     this.ground = null
 
-    /**
-     * @type {ModelManager}
-     */
-    this.modelManager = null
+    //模型的空间信息获取方法
+    this._getBox = null
+    this._getSize = null
+    this._getCenter = null
 
   }
 
-  init() {
-    this._initLights()
-    this._initGround()
-  }
+
 
   /**
-   * 设置模型管理器，用于获取模型的包围盒
-   *
-   * @param {ModelManager} modelManager
+   * 注入模型空间信息能力
+   * 
+   * @param {Object} params 
+   * @param {()=>THREE.Box3} params.getBox 提供模型包围盒的函数
+   * @param {()=>THREE.Vector3} params.getSize 提供模型尺寸的函数
+   * @param {()=>THREE.Vector3} params.getCenter 提供模型中心位置的函数
    */
-  setModelManager(modelManager){
-    this.modelManager = modelManager
+  setModelProvider({ getBox, getSize, getCenter }) {
+    this._getBox = getBox
+    this._getSize = getSize
+    this._getCenter = getCenter
   }
 
   /**
@@ -40,7 +41,11 @@ export class SceneManager {
    * @returns {THREE.Box3}
    */
   getBox(){
-    return this.modelManager.box.clone()
+    if (!this._getBox) {
+      console.warn('SceneManager: getBox not provided')
+      return null
+    }
+    return this._getBox()
   }
 
   /**
@@ -49,7 +54,11 @@ export class SceneManager {
    * @returns {THREE.Vector3}
    */
   getSize(){
-    return this.modelManager.size.clone()
+    if (!this._getSize) {
+      console.warn('SceneManager: getSize not provided')
+      return null
+    }
+    return this._getSize()
   }
 
   /**
@@ -58,7 +67,16 @@ export class SceneManager {
    * @returns {THREE.Vector3}
    */
   getCenter(){
-    return this.modelManager.center.clone()
+    if (!this._getCenter) {
+      console.warn('SceneManager: getCenter not provided')
+      return null
+    }
+    return this._getCenter()
+  }
+
+  init() {
+    this._initLights()
+    this._initGround()
   }
 
   _initLights() {
@@ -73,7 +91,7 @@ export class SceneManager {
   }
 
   /**
-   * 适配灯光
+   * 适配灯光位置和范围
    */
   fitLights() {
 
@@ -182,12 +200,12 @@ export class SceneManager {
     this.ground.material.map = texture
     this.ground.material.color.set(color)
     this.ground.material.map.repeat.set(repeat, repeat)
-    this.ground.material.map.offset.set(-repeat / 2, -repeat / 2)//放置缩放跳动
+    // this.ground.material.map.offset.set(-repeat / 2, -repeat / 2)//放置缩放跳动
     this.ground.material.needsUpdate = true
   }
 
   /**
-   * 适配地面
+   * 适配地面位置和尺寸
    */
   fitGround() {
 
@@ -197,9 +215,9 @@ export class SceneManager {
     const x = Math.ceil(center.x)
     const z = Math.ceil(center.z)
 
-    this.ground.position.set(x, 0, z)
-
-    const max = Math.ceil(Math.max(size.x, size.z))
+    this.ground.position.set(center.x, 0, center.z)
+    
+    const max = Math.ceil(Math.max(size.x, size.z)) + 2
 
     this.setGroundScale(max)
   }
@@ -238,6 +256,16 @@ export class SceneManager {
   }
 
   /**
+   * 更新场景内元素位置等信息于模型
+   * 
+   * 在模型更新后调用
+   */
+  updateSceneItems(){
+    this.fitLights()
+    this.fitGround()
+  }
+
+  /**
    * 清空场景基础元素（用于重新 init）
    * 不销毁本身
    */
@@ -272,6 +300,10 @@ export class SceneManager {
     this.clear()
 
     // 2. 清理引用
+    this._getBox = null
+    this._getSize = null
+    this._getCenter = null
+
     this.scene = null
     this.lights = null
     this.ground = null

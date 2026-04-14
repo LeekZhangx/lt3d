@@ -31,6 +31,7 @@ export class LtViewer {
     this.scenePanel = null
 
     this.modelManager = null
+    this.modelProvider = null
 
     this.statsPanel = null
 
@@ -71,7 +72,15 @@ export class LtViewer {
 
     // 4 Model
     this.modelManager = new ModelManager(this.renderSystem.scene)
-    this.sceneManager.setModelManager(this.modelManager)
+
+    //模型的空间信息函数
+    this.modelProvider = {
+      getBox: () => this.modelManager.getBox(),
+      getSize: () => this.modelManager.getSize(),
+      getCenter: () => this.modelManager.getCenter()
+    }
+
+    this.sceneManager.setModelProvider(this.modelProvider)
 
     this._observeResize()
   }
@@ -110,10 +119,12 @@ export class LtViewer {
 
     if (this.modelManager.analyze()) {
       this.renderSystem.fitCamera(this.modelManager)
-      this.sceneManager.fitLights()
-      this.sceneManager.fitGround()
+      this.sceneManager.updateSceneItems()
 
       this.scenePanel?.updateGUI()
+
+      this.debugManager?.updateDebugItems()
+
     }
 
     this.requestRender()
@@ -213,7 +224,8 @@ export class LtViewer {
 
   openDebugPanel(container) {
     if(!this.debugManager){
-      this.debugManager = new DebugManager(this.renderSystem.scene)
+      this.debugManager = new DebugManager(this.renderSystem.scene, ()=> this.modelManager.getModel())
+      this.debugManager.setModelProvider(this.modelProvider)
     }
 
     if (!this.debugPanel) {
@@ -283,6 +295,7 @@ export class LtViewer {
     // ==== 模型 ====
 
     this.modelManager?.dispose()
+    this.modelProvider = null
     this.modelManager = null
 
 

@@ -1,3 +1,4 @@
+import * as THREE from 'three'
 import { GUI } from 'lil-gui'
 import { DebugMode } from './DebugMode.js'
 import { DebugManager } from './DebugManager.js'
@@ -53,9 +54,7 @@ export class DebugPanel {
 
     geoFolder.add(geoState, 'debugMode', Object.values(DebugMode))
       .onChange((val) => {
-        const obj = this.getModel()
-        this.debugManager.setTarget(obj)
-        this.debugManager.setDebugMode(val, obj)
+        this.debugManager.setDebugMode(val)
         requestRender?.()
       })
 
@@ -87,13 +86,9 @@ export class DebugPanel {
     const helperFolder = this.gui.addFolder('Helper')
     helperFolder.close()
 
-    const helperState = {
-      showGrid: false,
-      showAxes: false,
-      showBorder: false
-    }
+    const helperState = this.debugManager.helperState
 
-    helperFolder.add(helperState, 'showGrid')
+    helperFolder.add(helperState, 'showGroundGrid')
       .onChange(v => {
         this.debugManager.setGroundGridHelper(v)
         requestRender?.()
@@ -107,7 +102,13 @@ export class DebugPanel {
 
     helperFolder.add(helperState, 'showBorder')
       .onChange(v => {
-        this.debugManager.setBorderHelper(v, this.getModel())
+        this.debugManager.setBorderHelper(v, this.debugManager.getBox())
+        requestRender?.()
+      })
+
+    helperFolder.add(helperState, 'showOrigin')
+      .onChange(v => {
+        this.debugManager.setOriginHelper(v)
         requestRender?.()
       })
 
@@ -130,15 +131,16 @@ export class DebugPanel {
    * @param {THREE.Object3D} obj
    */
   applyDebugState(geoState, helperState, obj) {
-    this.debugManager.setTarget(obj)
+
     this.debugManager.setDebugMode(geoState.debugMode, obj)
     this.debugManager.updateDepth(geoState)
     this.debugManager.updateRenderOrder(geoState.renderOrder)
     this.debugManager.setShowModel(geoState.showModel, obj)
 
-    this.debugManager.setGroundGridHelper(helperState.showGrid)
+    this.debugManager.setGroundGridHelper(helperState.showGroundGrid)
     this.debugManager.setAxesHelper(helperState.showAxes)
-    this.debugManager.setBorderHelper(helperState.showBorder, obj)
+    this.debugManager.setBorderHelper(helperState.showBorder, this.debugManager.getBox())
+    this.debugManager.setOriginHelper(helperState.showOrigin)
   }
 
   showGUI() {

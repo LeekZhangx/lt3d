@@ -38,21 +38,47 @@ export class DebugGeometry {
   }
 
   /**
-   * 启用该类型的几何体debug提示
+   * 启用模型的几何体debug提示
    * @param {string} type
    * @param {THREE.Object3D} object 3D对象
    * @param {*} options 额外配置
    */
   enable(type, object, options){
 
-    this.disable(type)
-
     const layer = this._getOrCreateLayer(type)
+
+    layer.visible = true
+
+    this._disposeLayer(layer)
+    layer.clear()
+
     this._build(type, object, layer, options)
   }
 
   /**
-   * 关闭该类型的几何体debug提示
+   * 更新模型型的几何体debug提示
+   * 
+   * 在模型更新后调用，会清空所有缓存
+   * 
+   * @param {string} type
+   * @param {THREE.Object3D} object 3D对象
+   * @param {*} options 额外配置
+   */
+  update(type, object, options){
+
+    //模型更新后，所有的都不适用了，需要全部删除
+    for (const layer of this.layers.values()) {
+      this._disposeLayer(layer)
+      layer.clear()
+    }
+
+    const layer = this._getOrCreateLayer(type)
+
+    this._build(type, object, layer, options)
+  }
+
+  /**
+   * 清除模型的几何体debug提示
    * @param {string} type
    */
   disable(type) {
@@ -60,9 +86,7 @@ export class DebugGeometry {
     if (!layer) return
 
     this._disposeLayer(layer)
-    this.root.remove(layer)
-    this.layers.delete(type)
-    this.enabledTypes.delete(type)
+    layer.clear()
   }
 
   /**
@@ -74,10 +98,6 @@ export class DebugGeometry {
       this.root.remove(layer)
     }
     this.layers.clear()
-  }
-
-  update() {
-    // 如果以后需要每帧同步 transform，可以在这里做
   }
 
   /**
