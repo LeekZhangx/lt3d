@@ -7,10 +7,18 @@ import { TextureCache } from '../../core/tile3d/texture/TextureCache.js'
  * 用于管理场景的灯光地面这类基础元素
  */
 export class SceneManager {
-  constructor(scene) {
+
+  /**
+   * 
+   * @param {THREE.Scene} scene 
+   * @param {TextureCache} textureCache 
+   */
+  constructor(scene, textureCache) {
     this.scene = scene
     this.lights = {}
     this.ground = null
+
+    this.textureCache = textureCache
 
     //模型的空间信息获取方法
     this._getBox = null
@@ -135,7 +143,7 @@ export class SceneManager {
 
     let mat
     if (texturePath) {
-      const texture = TextureCache.load(texturePath)
+      const texture = this.textureCache.get(texturePath)
       texture.needsUpdate = true
 
       mat = new THREE.MeshStandardMaterial({ map: texture })
@@ -196,7 +204,7 @@ export class SceneManager {
     }
 
     // 加载新贴图
-    const texture = TextureCache.get(texturePath, 'ground')
+    const texture = this.textureCache.get(texturePath, 'ground')
     this.ground.material.map = texture
     this.ground.material.color.set(color)
     this.ground.material.map.repeat.set(repeat, repeat)
@@ -298,6 +306,8 @@ export class SceneManager {
 
     // 1. 清空内容
     this.clear()
+    //这里textureCache不dispose
+    this.textureCache = null
 
     // 2. 清理引用
     this._getBox = null

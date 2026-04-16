@@ -1,0 +1,34 @@
+{ 
+  boxes:10,
+  c:[
+      {
+        s:{id:"fixed"},
+        t:{
+          "minecraft:light_blue_wool":[[I;-1],[I;16,0,1,17,1,16]],
+          "minecraft:lime_wool":[[I;-1],[I;16,1,0,17,16,1]],
+          "minecraft:red_wool":[[I;-1],[I;17,0,0,32,1,1]]
+        }
+      },
+      {
+        s:{id:"ladder"},
+        t:{"minecraft:white_wool":[[I;-8590349],[I;20,0,16,21,3,32]]}
+      },
+      {
+        c:[
+          {
+            s:{id:"ladder"},
+            t:{"minecraft:white_wool":[[I;-8590349],[I;27,0,16,28,3,32]]}}
+          ],
+        s:{id:"message",lines:["Hello World!"],message:{mode:"EQUAL",state:0b},right:1b,status:0b},
+        t:{"minecraft:white_wool":[[I;-232193],[I;24,0,16,25,3,32]]}
+      }
+    ],
+  min:[I;0,0,0],
+  s:{id:"fixed"},
+  size:[I;48,16,32],
+  t:{
+    "minecraft:white_wool":[[I;-7828856],[I;9,0,16,10,3,32],[I;-232193],[I;12,0,16,13,3,32],[I;-1],[I;32,0,16,48,1,32]],
+    "minecraft:yellow_wool":[[I;-1],[I;0,0,16,5,3,32]]
+  },
+  tiles:10
+}

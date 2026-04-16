@@ -8,7 +8,9 @@ import { ControlsSystem } from './core/ControlsSystem.js'
 import { ScenePanel } from './scene/ScenePanel.js'
 import { StatsPanel } from './stats/StatsPanel.js'
 import { TextureCache } from '../core/tile3d/texture/TextureCache.js'
-import { LtToMesh } from '../core/tile3d/LtToMesh.js'
+import { LtMeshBuilder } from '../core/tile3d/LtMeshBuilder.js'
+import { LT_VERSION } from '../core/version/LtVersion.js'
+import { ResourceSystem } from '../core/tile3d/resource/ResourceSystem.js'
 
 export class LtViewer {
 
@@ -40,6 +42,10 @@ export class LtViewer {
 
     this.loadingManager = new THREE.LoadingManager()
 
+    this.resourceSystem = new ResourceSystem(this.loadingManager)
+
+    this.ltMeshBuilder = new LtMeshBuilder(this.resourceSystem)
+
     this._renderRequested = false
     this._resizeObserver = null
   }
@@ -49,7 +55,7 @@ export class LtViewer {
     this.renderSystem = new RenderSystem(this.container, this.options)
 
     // 2 Scene
-    this.sceneManager = new SceneManager(this.renderSystem.scene)
+    this.sceneManager = new SceneManager(this.renderSystem.scene, this.resourceSystem.textureCache)
     this.sceneManager.init()
 
     // 3 控制器
@@ -97,14 +103,16 @@ export class LtViewer {
   loadModelFromLtObj(ltObj, name){
     if (!ltObj) return
 
-    TextureCache.init(this.loadingManager)
-
     this.loadingManager.onLoad = () => {
       this.requestRender()
     }
 
+    const ctx = this.resourceSystem.createBuildContext({
+      ltVersion: ltObj.ltVersion
+    })
+
     // 从 ltObj 构建 Three 模型
-    const ltModel3d = LtToMesh.buildMesh(ltObj, name)
+    const ltModel3d = this.ltMeshBuilder.build(ltObj, name, ctx)
 
     this._loadModel(ltModel3d)
   }
@@ -128,6 +136,21 @@ export class LtViewer {
     }
 
     this.requestRender()
+
+  }
+
+  /* ================= 贴图管理 ================= */
+
+  /**
+   * 添加额外的方块贴图匹配表
+   * 
+   * @param {keyof typeof LT_VERSION} version 
+   * @param {object} table 方块名称和纹理贴图映射表
+   */
+  registerTextureTable(version, table) {
+    this.resourceSystem.registerTextureTable(table, version)
+    const resolver = this._getResolver(version)
+    resolver.registerTable(table)
   }
 
   /* ================= 渲染 ================= */
@@ -297,6 +320,10 @@ export class LtViewer {
     this.modelManager?.dispose()
     this.modelProvider = null
     this.modelManager = null
+
+    this.resourceSystem?.dispose()
+    this.resourceSystem = null
+    this.ltMeshBuilder = null
 
 
     // ==== 场景 ====

@@ -23,7 +23,7 @@
     .app {
       width: 95%;
       max-width: 1400px;
-      height: 90vh;
+      height: 96vh;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -122,6 +122,24 @@
       width: 260px !important;
       z-index: 10 !important;
     }
+
+    .select-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .select-group label {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .hint-text {
+      font-size: auto;
+      color: #94a3b8;
+      opacity: 0.9;
+      white-space: nowrap;
+    }
   </style>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
@@ -146,22 +164,43 @@
   <div class="app">
 
     <!-- 工具栏 -->
+    <span class="hint-text" style="white-space: pre-line;">
+      选择外部txt文件后请点击 Show 按钮。
+      After selecting an external txt file, please click the Show button.
+    </span>
+
     <div class="toolbar">
+
+      <div class="select-group">
+        <label for="versionSelect">Lt Version:</label>
+        <select id="versionSelect">
+          <option value="1.12">1.12</option>
+          <option value="1.21">1.21</option>
+        </select>
+      </div>
+
+      <div class="select-group">
+        <label for="presetSelect">File:</label>
+        <select id="presetSelect">
+          <option value="">-- Select File --</option>
+        </select>
+      </div>
+
       <input type="file" id="fileInput" accept=".txt" />
       <button id="showBtn">Show</button>
 
       <!-- Scene -->
-      <button id="sceneBtn" class="icon-btn">
+      <button id="sceneBtn" class="icon-btn" title="Scene GUI">
         <i class="bi bi-leaf" style="color: green;"></i>
       </button>
 
       <!-- Stats -->
-      <button id="statsBtn" class="icon-btn">
+      <button id="statsBtn" class="icon-btn" title="Stats GUI">
         <i class="bi bi-info-circle" style="color: purple;"></i>
       </button>
 
       <!-- Debug -->
-      <button id="debugBtn" class="icon-btn">
+      <button id="debugBtn" class="icon-btn" title="Debug GUI">
         <i class="bi bi-bug" style="color: orangered;"></i>
       </button>
     </div>

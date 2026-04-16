@@ -1,0 +1,1 @@
+{tiles:[{bBox:[I;0,0,0,1,1,1],tile:{block:"minecraft:magenta_glazed_terracotta:1"}},{bBox:[I;0,0,2,1,1,3],tile:{block:"minecraft:magenta_glazed_terracotta"}},{bBox:[I;2,0,0,3,1,1],tile:{block:"minecraft:magenta_glazed_terracotta:2"}},{bBox:[I;2,0,2,3,1,3],tile:{block:"minecraft:magenta_glazed_terracotta:3"}}],min:[I;0,0,0],size:[I;3,1,3],grid:1,count:4}

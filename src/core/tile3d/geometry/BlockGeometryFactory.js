@@ -28,14 +28,17 @@ import { CommonBoxFactory } from './common/CommonBoxFactory.js'
 export class BlockGeometryFactory {
 
   /**
+   * @typedef {number[]} box [x1,y1,z1, x2,y2,z2]
+   */
+
+  /**
    * 创建 box数组 对应的几何体
-   * @type {number[]} box
-   *  [
-   *     x1, y1, z1,
-   *     x2, y2, z2
-   *   ]
-   * @param {box[]} transformableBoxes 这里的box携带ex数据
+   * 
+   * @param {box[]} commonBoxes 普通box数组
+   *  - 单个box为 [x1,y1,z1, x2,y2,z2]
+   * 
    * @param {number} grid
+   * 
    * @returns {THREE.BufferGeometry}
    */
   static createCommonBoxes(commonBoxes, grid){
@@ -44,17 +47,18 @@ export class BlockGeometryFactory {
 
   }
 
+  /**
+   * @typedef {number[]} transformableBox [x1,y1,z1, x2,y2,z2, mask, ex0,ex1 ...]
+   */
 
   /**
    * 创建 可变形box数组 对应的几何体
-   * @type {number[]} box
-   *  [
-   *     x1, y1, z1,
-   *     x2, y2, z2,
-   *     mask?, ex0?, ex1?, ...
-   *   ]
-   * @param {box[]} transformableBoxes 这里的box携带ex数据
+   * 
+   * @param {transformableBox[]} transformableBoxes 可变形box数组
+   *  - 单个box为 [x1,y1,z1, x2,y2,z2, mask, ex0,ex1 ...]
+   * 
    * @param {number} grid
+   * 
    * @returns {THREE.BufferGeometry}
    */
   static createTransformableBoxes(transformableBoxes, grid) {

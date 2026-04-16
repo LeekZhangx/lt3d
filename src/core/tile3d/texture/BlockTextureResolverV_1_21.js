@@ -1,19 +1,29 @@
+import { LT_VERSION } from "../../version/LtVersion.js"
 import { BlockTextureResolver } from "./BlockTextureResolver.js"
 /**
- * 该版本方块命名方式扁平化，大部分可以直接匹配纹理贴图
+ * 该版本方块命名方式扁平化，大部分可以直接匹配纹理
  */
 export class BlockTextureResolverV_1_21 extends BlockTextureResolver{
 
   /**
    * @param {object} table BLOCK_TEXTURE_TABLE（按版本加载）
-   * @param {string} basePath 贴图根路径
+   * @param {string} basePath 纹理根路径
    */
   constructor(table, basePath) {
-    super(null, basePath)
+    super(LT_VERSION.V_1_21, null, basePath)
   }
 
   /**
-   * 解析 block namespace 对应的贴图路径
+   * @override
+   * 
+   * 高版本不需要该功能
+   */
+  registerTable(table, { priority = 'high' } = {}) {
+    console.info('BlockTextureResolverV_1_21 not support this function, higher lt version is not need this.')
+  }
+
+  /**
+   * 解析 block namespace 对应的纹理路径
    *
    * - mc 1.13后命名扁平化，数值型元数据被移除
    *

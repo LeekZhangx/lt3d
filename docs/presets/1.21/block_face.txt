@@ -1,0 +1,1 @@
+{boxes:4,grid:1,min:[I;0,0,0],size:[I;3,1,3],t:{"minecraft:magenta_glazed_terracotta[facing=east]":[[I;-1],[I;0,0,2,1,1,3]],"minecraft:magenta_glazed_terracotta[facing=north]":[[I;-1],[I;2,0,2,3,1,3]],"minecraft:magenta_glazed_terracotta[facing=south]":[[I;-1],[I;0,0,0,1,1,1]],"minecraft:magenta_glazed_terracotta[facing=west]":[[I;-1],[I;2,0,0,3,1,1]]},tiles:4}

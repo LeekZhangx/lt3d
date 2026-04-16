@@ -7,21 +7,18 @@ import * as THREE from 'three'
  */
 export class TextureCache {
 
-  static cache = new Map()
   /**
-   * THREE.TextureLoader
+   * 
+   * @param {THREE.LoadingManager | null} manager 资源加载管理器，非必须
    */
-  static loader = null
-  static fallbackTexture = null
+  constructor(manager) {
 
-  /**
-   * 初始化贴图加载器
-   *
-   * @param {THREE.LoadingManager} manager 贴图加完完毕，通知进行画面渲染的管理器
-   */
-  static init(manager) {
+    this.cache = new Map()
     this.loader = new THREE.TextureLoader(manager)
+    this.fallbackTexture = null
+
   }
+
 
   /**
    * 通过材质路径获取材质，使用路径名称作为缓存key
@@ -30,11 +27,7 @@ export class TextureCache {
    * @param {string} name textureName
    * @returns
    */
-  static get(path, name) {
-
-    if (!this.loader) {
-      throw new Error("TextureCache not initialized")
-    }
+  get(path, name) {
 
     if (this.cache.has(path)) {
       return this.cache.get(path)
@@ -81,7 +74,7 @@ export class TextureCache {
    * 纹理缺失 紫黑棋盘色块
    * @returns
    */
-  static _createFallbackTexture() {
+  _createFallbackTexture() {
     if (this.fallbackTexture) {
       return this.fallbackTexture
     }
@@ -126,24 +119,35 @@ export class TextureCache {
   }
 
   /**
+   * 获取纹理缓存
+   * 
+   * key: 纹理路径（string）
+   * value: THREE.Texture
+   * 
+   * @returns {Map<string, THREE.Texture>}
+   */
+  getCache() {
+    return this.cache
+  }
+
+  /**
    * 清空cache缓存，但不销毁整个 TextureCache
    */
-  static clear() {
-    for (const tex of this.cache.values()) {
-      if (tex && tex.dispose) tex.dispose() // 释放 GPU 内存
-    }
+  clear() {
+    this.cache.forEach(tex => tex.dispose())
     this.cache.clear()
   }
 
   /**
    * 销毁 TextureCache
    */
-  static dispose() {
+  dispose() {
     this.clear()
 
-    if (this.fallbackTexture && this.fallbackTexture.dispose) {
+    if (this.fallbackTexture?.dispose) {
       this.fallbackTexture.dispose()
     }
+
     this.fallbackTexture = null
     this.loader = null
   }

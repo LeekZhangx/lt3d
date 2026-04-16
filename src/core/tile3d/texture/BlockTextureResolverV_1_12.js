@@ -1,17 +1,18 @@
+import { LT_VERSION } from "../../version/LtVersion.js"
 import { BlockTextureResolver } from "./BlockTextureResolver.js"
 
 export class BlockTextureResolverV_1_12  extends BlockTextureResolver{
 
   /**
    * @param {object} table BLOCK_TEXTURE_TABLE（按版本加载）
-   * @param {string} basePath 贴图根路径
+   * @param {string} basePath 纹理根路径
    */
   constructor(table, basePath) {
-    super(table, basePath)
+    super(LT_VERSION.V_1_12, table, basePath)
   }
 
   /**
-   * 解析 block namespace 对应的贴图路径
+   * 解析 block namespace 对应的纹理路径
    *
    * @param {string} namespace    如 "minecraft:stone:2" / "littletiles:ltcoloredblock"
    * @returns {string|null} 完整的路径 basePath/blocks/stone.png
@@ -26,7 +27,7 @@ export class BlockTextureResolverV_1_12  extends BlockTextureResolver{
 
     if (!mod || !blockName) return null
 
-    const modTable = this.table.mods[mod]
+    const modTable = this.mergedTable.mods[mod]
     if (!modTable) return null
 
     if(mod === 'flatcoloredblocks'){
@@ -51,5 +52,3 @@ export class BlockTextureResolverV_1_12  extends BlockTextureResolver{
   }
 
 }
-
-export { BlockTextureResolverV_1_12 as BlockTextureResolver }

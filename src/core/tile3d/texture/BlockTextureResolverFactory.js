@@ -18,13 +18,15 @@ export class BlockTextureResolverFactory {
 
       case LT_VERSION.V_1_12:
         return new BlockTextureResolverV_1_12(
-          BLOCK_TEXTURE_TABLE_1_12,
+          [
+            BLOCK_TEXTURE_TABLE_1_12
+          ],
           TEXTURE_PATH_CONFIG[LT_VERSION.V_1_12]
         )
 
       case LT_VERSION.V_1_21:
         return new BlockTextureResolverV_1_21(
-          null,
+          [],
           TEXTURE_PATH_CONFIG[LT_VERSION.V_1_21]
         )
 

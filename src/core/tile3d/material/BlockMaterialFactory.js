@@ -5,6 +5,7 @@ import { FcbMaterialFactory } from './fcb/FcbMaterialFactory.js'
 import { MaterialResolver } from './materials/MaterialResolver.js'
 import { TextureCache } from '../texture/TextureCache.js'
 import { BoxMappingUtil } from './sharder/BoxMappingUtil.js'
+import { BlockTextureResolver } from '../texture/BlockTextureResolver.js'
 
 
 /**
@@ -34,9 +35,9 @@ export class BlockMaterialFactory {
     /**
      * 创建（或复用）tile 对应的材质
      * @param {tile} tile 存储的方块信息，包括 命名空间 和 叠加色
-     * @param {object} ctx 上下文对象.
-     *  - 需包含 textureResolver (BlockTextureResolver) 对象
-     * @returns {[]} THREE.Material[ ] tile对应的材质数组
+     * @param {object} ctx 提供 textureResolver
+     * @param {BlockTextureResolver} ctx.textureResolver textureResolver
+     * @returns {THREE.Material[]} tile对应的材质数组
      */
     static createMaterial(tile, ctx) {
         // //使用统一的贴图加载器，方便更新信息
@@ -59,8 +60,8 @@ export class BlockMaterialFactory {
     /**
      * 构建材质
      * @param {object} tile
-     * @param {object} ctx
-     *  - 必须包含 textureResolver (BlockTextureResolver) 实例对象
+     * @param {object} ctx 提供 textureResolver
+     * @param {BlockTextureResolver} ctx.textureResolver textureResolver
      * @returns {THREE.Material[]}
      */
     static _buildMaterial(tile, ctx) {
@@ -110,18 +111,8 @@ export class BlockMaterialFactory {
 
       // === 2. 再异步加载贴图覆盖 ===
 
-
-      //BlockTextureResolver
-      const textureResolver = ctx.textureResolver
-
-      const texturePath = textureResolver.resolve(tile.block)
-
-      const uvTexturePath = '/assets/uv_grid_opengl.png'
-
-      if (texturePath) {
-        texture = TextureCache.get(texturePath, tile.block)
-        baseMaterial.map = texture
-      }
+      texture = ctx.getTexture(tile.block)
+      baseMaterial.map = texture
 
       //注入sharder
       BoxMappingUtil.apply(baseMaterial, {

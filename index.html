@@ -23,7 +23,7 @@
     .app {
       width: 95%;
       max-width: 1400px;
-      height: 90vh;
+      height: 96vh;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -122,6 +122,24 @@
       width: 260px !important;
       z-index: 10 !important;
     }
+
+    .select-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .select-group label {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .hint-text {
+      font-size: auto;
+      color: #94a3b8;
+      opacity: 0.9;
+      white-space: nowrap;
+    }
   </style>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
@@ -144,22 +162,43 @@
   <div class="app">
 
     <!-- 工具栏 -->
+    <span class="hint-text" style="white-space: pre-line;">
+      选择外部txt文件后请点击 Show 按钮。
+      After selecting an external txt file, please click the Show button.
+    </span>
+
     <div class="toolbar">
+
+      <div class="select-group">
+        <label for="versionSelect">Lt Version:</label>
+        <select id="versionSelect">
+          <option value="1.12">1.12</option>
+          <option value="1.21">1.21</option>
+        </select>
+      </div>
+
+      <div class="select-group">
+        <label for="presetSelect">File:</label>
+        <select id="presetSelect">
+          <option value="">-- Select File --</option>
+        </select>
+      </div>
+
       <input type="file" id="fileInput" accept=".txt" />
       <button id="showBtn">Show</button>
 
       <!-- Scene -->
-      <button id="sceneBtn" class="icon-btn">
+      <button id="sceneBtn" class="icon-btn" title="Scene GUI">
         <i class="bi bi-leaf" style="color: green;"></i>
       </button>
 
       <!-- Stats -->
-      <button id="statsBtn" class="icon-btn">
+      <button id="statsBtn" class="icon-btn" title="Stats GUI">
         <i class="bi bi-info-circle" style="color: purple;"></i>
       </button>
 
       <!-- Debug -->
-      <button id="debugBtn" class="icon-btn">
+      <button id="debugBtn" class="icon-btn" title="Debug GUI">
         <i class="bi bi-bug" style="color: orangered;"></i>
       </button>
     </div>
@@ -181,6 +220,8 @@
     import { LtObjBuilder, LtViewer } from "./src/index.js"
 
     const defaultTxt = '{boxes:1,grid:1,min:[I;0,0,0],size:[I;1,1,1],t:{"minecraft:iron_block":[[I;-1],[I;0,0,0,1,1,1]]},tiles:1}'
+
+    // ===== gui =====
 
     let showScene = false
     let showStats = false
@@ -226,6 +267,70 @@
 
 
     updateButtons()
+
+
+    // ===== preset txt =====
+
+    const PRESET_FILES = {
+      "1.12": [
+        "block_face.txt",
+        "flatcoloredblock_truck.txt",
+        "Saferoom Door.txt",
+        "test-00-slice 16.txt",
+        "test-06-allin1_64.txt",
+        "Tower Crane 2.txt"
+      ],
+      "1.21": [
+        "block_face.txt",
+        "block.txt",
+        "crane_truck.txt"
+      ]
+    }
+
+    const versionSelect = document.getElementById("versionSelect")
+    const presetSelect = document.getElementById("presetSelect")
+
+    function updatePresetOptions(version) {
+      const files = PRESET_FILES[version] || []
+
+      presetSelect.innerHTML = `<option value="">-- Select File --</option>`
+
+      files.forEach(file => {
+        const option = document.createElement("option")
+        option.value = file
+        option.textContent = file
+        presetSelect.appendChild(option)
+      })
+    }
+
+    versionSelect.addEventListener("change", () => {
+      updatePresetOptions(versionSelect.value)
+    })
+
+    // 初始化
+    updatePresetOptions(versionSelect.value)
+
+    presetSelect.addEventListener("change", async () => {
+      const version = versionSelect.value
+      const file = presetSelect.value
+
+      if (!file) return
+
+      const path = `./presets/${version}/${file}`
+
+      try {
+        const res = await fetch(path)
+        const txt = await res.text()
+
+        textarea.value = txt
+        renderFromText(txt)
+
+      } catch (err) {
+        console.error(err)
+        alert("Failed to load preset file.")
+      }
+    })
+
 
 
     const textarea = document.getElementById("textInput")
