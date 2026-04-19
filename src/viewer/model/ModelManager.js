@@ -97,6 +97,24 @@ export class ModelManager {
   }
 
   /**
+   * 模型包围信息
+   * @typedef {Object} Bounds
+   * @property {THREE.Vector3} size 包围盒尺寸（宽、高、深）
+   * @property {THREE.Vector3} center 包围盒中心点（世界坐标）
+   */
+
+  /**
+   * 获取当前模型的包围信息
+   * @returns {Bounds}
+   */
+  getBounds() {
+    return {
+      size: this.size.clone(),
+      center: this.center.clone()
+    }
+  }
+
+  /**
    * 清除当前场景中的3D对象
    */
   clearModel(){

@@ -66,6 +66,21 @@ export class ControlsSystem {
     this.controls.enableDamping = false
   }
 
+  /**
+   * 固定控制器中心位置
+   * 
+   * 在模型更新后调用
+   * 
+   * @param {THREE.Vector3} center 
+   * @returns 
+   */
+  fitCenter(center) {
+    if (!this.controls) return
+
+    this.controls.target.copy(center)
+    this.controls.update()
+  }
+
   /* =========================
      每帧更新（必须在 render loop 调用）
   ========================= */

@@ -1,6 +1,6 @@
 export { LtObjBuilder } from "./core/builder/LtObjBuilder.js"
 
-export { LtMeshBuilder } from "./core/tile3d/LtMeshBUilder.js"
+export { LtMeshBuilder } from "./core/tile3d/LtMeshBuilder.js"
 export { TextureCache } from "./core/tile3d/texture/TextureCache.js"
 
 export { LtViewer } from "./viewer/LtViewer.js"

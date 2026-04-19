@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { ModelManager } from '../model/ModelManager.js'
 
 /**
  * 画面渲染系统
@@ -48,15 +47,20 @@ export class RenderSystem {
   }
 
   /**
+   * 模型包围信息
+   * @typedef {Object} Bounds
+   * @property {THREE.Vector3} size 包围盒尺寸（宽、高、深）
+   * @property {THREE.Vector3} center 包围盒中心点（世界坐标）
+   */
+
+  /**
    * 固定相机的位置和角度
    *
    * 固定相机的位置和视角中心，让几何体在画面中间
    *
-   * @param {ModelManager} modelManager 需要提供 size 和 center 参数
+   * @param {Bounds} bounds 模型包围信息
    */
-  fitCamera(modelManager) {
-    const size = modelManager.size
-    const center = modelManager.center
+  fitCamera({size, center}) {
 
     const max = Math.max(size.x, size.y, size.z)
 

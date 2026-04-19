@@ -26,7 +26,7 @@ export class LtViewer {
     this.options = options
 
     this.renderSystem = null
-    this.ControlsSystem = null
+    this.controlsSystem = null
     this.pickingSystem = null
 
     this.sceneManager = null
@@ -61,13 +61,13 @@ export class LtViewer {
     // 3 控制器
 
     //摄像机轨道控制
-    this.controls = new ControlsSystem({
+    this.controlsSystem = new ControlsSystem({
       camera : this.renderSystem.camera,
       domElement : this.renderSystem.renderer.domElement
     }
     )
 
-    this.controls.onChange(() => this.requestRender())
+    this.controlsSystem.onChange(() => this.requestRender())
 
     //交互控制
     // this.pickingSystem = new PickingSystem(
@@ -126,7 +126,12 @@ export class LtViewer {
     this.modelManager.setModel(object3D)
 
     if (this.modelManager.analyze()) {
-      this.renderSystem.fitCamera(this.modelManager)
+      const bounds = this.modelManager.getBounds()
+
+      this.renderSystem.fitCamera(bounds)
+      
+      this.controlsSystem.fitCenter(bounds.center)
+
       this.sceneManager.updateSceneItems()
 
       this.scenePanel?.updateGUI()
@@ -170,7 +175,7 @@ export class LtViewer {
     console.log('render...');
 
     this.renderSystem.render()
-    this.ControlsSystem?.update()
+    this.controlsSystem?.update()
     this.pickingSystem?.update()
 
     //计算render的渲染次数
@@ -308,8 +313,8 @@ export class LtViewer {
 
     // ==== 交互系统 ====
 
-    this.controls?.dispose()
-    this.controls = null
+    this.controlsSystem?.dispose()
+    this.controlsSystem = null
 
     this.pickingSystem?.dispose()
     this.pickingSystem = null
