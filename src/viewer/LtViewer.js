@@ -11,6 +11,8 @@ import { TextureCache } from '../core/tile3d/texture/TextureCache.js'
 import { LtMeshBuilder } from '../core/tile3d/LtMeshBuilder.js'
 import { LT_VERSION } from '../core/version/LtVersion.js'
 import { ResourceSystem } from '../core/tile3d/resource/ResourceSystem.js'
+import { CameraSystem } from './core/CameraSystem.js'
+import { UIManager } from './UIManager.js'
 
 export class LtViewer {
 
@@ -26,43 +28,58 @@ export class LtViewer {
     this.options = options
 
     this.renderSystem = null
+    this.cameraSystem = null
     this.controlsSystem = null
     this.pickingSystem = null
 
+    this.uiManager = null
+
     this.sceneManager = null
-    this.scenePanel = null
 
     this.modelManager = null
     this.modelProvider = null
 
-    this.statsPanel = null
-
     this.debugManager = null
-    this.debugPanel = null
 
-    this.loadingManager = new THREE.LoadingManager()
+    //===== 资源系统 =====
+    this.loadingManager = null
 
-    this.resourceSystem = new ResourceSystem(this.loadingManager)
+    this.resourceSystem = null
 
-    this.ltMeshBuilder = new LtMeshBuilder(this.resourceSystem)
+    this.ltMeshBuilder = null
 
     this._renderRequested = false
     this._resizeObserver = null
   }
 
   init() {
+    this.uiManager = new UIManager()
+
+    //资源初始化
+    this.loadingManager = new THREE.LoadingManager()
+    this.resourceSystem = new ResourceSystem(this.loadingManager)
+
+    this.ltMeshBuilder = new LtMeshBuilder(this.resourceSystem)
+
+    //0 相机系统
+    this.cameraSystem = new CameraSystem(this.container)
+
     // 1 渲染系统
     this.renderSystem = new RenderSystem(this.container, this.options)
+    this.renderSystem.setCamera(this.cameraSystem.getCamera())
 
     // 2 Scene
-    this.sceneManager = new SceneManager(this.renderSystem.scene, this.resourceSystem.textureCache)
+    this.sceneManager = new SceneManager(
+      this.renderSystem.scene, 
+      this.resourceSystem.textureCache
+    )
     this.sceneManager.init()
 
     // 3 控制器
 
     //摄像机轨道控制
     this.controlsSystem = new ControlsSystem({
-      camera : this.renderSystem.camera,
+      camera : this.cameraSystem.getCamera(),
       domElement : this.renderSystem.renderer.domElement
     }
     )
@@ -127,14 +144,12 @@ export class LtViewer {
 
     if (this.modelManager.analyze()) {
       const bounds = this.modelManager.getBounds()
-
-      this.renderSystem.fitCamera(bounds)
       
       this.controlsSystem.fitCenter(bounds.center)
 
       this.sceneManager.updateSceneItems()
 
-      this.scenePanel?.updateGUI()
+      this.uiManager.updateGUI()
 
       this.debugManager?.updateDebugItems()
 
@@ -175,186 +190,38 @@ export class LtViewer {
     console.log('render...');
 
     this.renderSystem.render()
-    this.controlsSystem?.update()
+    this.controlsSystem.update()
     this.pickingSystem?.update()
 
     //计算render的渲染次数
     this.statsPanel?.recordRender()
   }
 
-  /* ================= GUI ================= */
-
-  // ===== Scene Panel =====
-
-  get isScenePanelVisible() {
-    return this.scenePanel?.isShow || false
-  }
-
-  openScenePanel(container){
-    if (!this.scenePanel) {
-      this.scenePanel = new ScenePanel(this.sceneManager)
-      this.scenePanel.enableGUI(container || this.container, () => this.requestRender())
-    } else {
-      this.scenePanel.showGUI()
-    }
-  }
-
-  hideScenePanel(){
-    if (this.scenePanel) {
-      this.scenePanel.hideGUI()
-    }
-  }
-
-  toggleScenePanel(container) {
-    if (!this.scenePanel || !this.scenePanel.isShow) {
-      this.openScenePanel(container)
-    }else{
-      this.hideScenePanel()
-    }
-  }
-
-
-  // ===== Stats Panel =====
-
-  get isStatsPanelVisible() {
-    return this.statsPanel?.isShow || false
-  }
-
-  openStatsPanel(container){
-    if (!this.statsPanel) {
-      this.statsPanel = new StatsPanel(this.sceneManager.scene, this.renderSystem.renderer)
-      this.statsPanel.enableGUI(container || this.container)
-    }else{
-      this.statsPanel.showGUI()
-    }
-  }
-
-  hideStatsPanel(){
-    if (this.statsPanel) {
-      this.statsPanel.hideGUI()
-    }
-  }
-
-  toggleStatsPanel(container) {
-    if (!this.statsPanel || !this.statsPanel.isShow) {
-      this.openStatsPanel(container)
-    }else{
-      this.hideStatsPanel()
-    }
-  }
-
-
-  // ===== Debug Panel =====
-
-  get isDebugPanelVisible() {
-    return this.debugPanel?.isShow || false
-  }
-
-  openDebugPanel(container) {
-    if(!this.debugManager){
-      this.debugManager = new DebugManager(this.renderSystem.scene, ()=> this.modelManager.getModel())
-      this.debugManager.setModelProvider(this.modelProvider)
-    }
-
-    if (!this.debugPanel) {
-      this.debugPanel = new DebugPanel(this.debugManager)
-
-      this.debugPanel.enableGUI(
-        () => this.modelManager.getModel(),
-        container ?? this.container,
-        () => this.requestRender()
-      )
-    } else {
-      this.debugPanel.showGUI()
-    }
-  }
-
-  hideDebugPanel(){
-    if (this.debugPanel) {
-      this.debugPanel.hideGUI()
-    }
-  }
-
-  toggleDebugPanel(container) {
-    if (!this.debugPanel || !this.debugPanel.isShow) {
-      this.openDebugPanel(container)
-    }else{
-      this.hideDebugPanel()
-    }
-  }
-
-  // ===== GUI dispose =====
-
-  disposeAllGUI(){
-    this.scenePanel?.dispose()
-    this.scenePanel = null
-
-    this.statsPanel?.dispose()
-    this.statsPanel = null
-
-    this.debugPanel?.dispose()
-    this.debugPanel = null
-  }
-
-  /* ================= 卸载 ================= */
+  /* ================= 相机 ================= */
 
   /**
-   * 销毁整个 Viewer（释放所有资源）
+   * 设置相机类型 透视/正交
+   * 
+   * @param {string} type 
    */
-  dispose() {
+  setActiveCamera(type) {
 
-    // ==== GUI ====
+    // 先同步（关键顺序）
+    this.cameraSystem.syncCameras()
 
-    this.disposeAllGUI()
-
-    this.debugManager?.dispose()
-    this.debugManager = null
-
-
-    // ==== 交互系统 ====
-
-    this.controlsSystem?.dispose()
-    this.controlsSystem = null
-
-    this.pickingSystem?.dispose()
-    this.pickingSystem = null
-
-
-    // ==== 模型 ====
-
-    this.modelManager?.dispose()
-    this.modelProvider = null
-    this.modelManager = null
-
-    this.resourceSystem?.dispose()
-    this.resourceSystem = null
-    this.ltMeshBuilder = null
-
-
-    // ==== 场景 ====
-
-    this.sceneManager?.dispose()
-    this.sceneManager = null
-
-
-    // ==== 渲染系统 ====
-
-    this.renderSystem?.dispose()
-    this.renderSystem = null
-
-
-    // ==== 其他 ====
-
-    TextureCache.dispose()
-
-    this.loadingManager = null
-    this._renderRequested = false
-
-    // ==== observeResize ====
-    if (this._resizeObserver) {
-      this._resizeObserver.disconnect()
-      this._resizeObserver = null
+    if (type === 'perspective') {
+      this.cameraSystem.setPerspective()
+    } else {
+      this.cameraSystem.setOrthographic()
     }
+
+    const cam = this.cameraSystem.getCamera()
+
+    // 同步更新相机
+    this.renderSystem.setCamera(cam)
+    this.controlsSystem.setCamera(cam)
+
+    this.requestRender()
   }
 
   /* ================= resize ================= */
@@ -373,10 +240,173 @@ export class LtViewer {
       requestAnimationFrame(() => {
         resizePending = false
         this.renderSystem.resize()
+
+        const w = this.container.clientWidth
+        const h = this.container.clientHeight
+
+        this.cameraSystem.resize(w, h)
+
         this.requestRender()
       })
     })
 
     this._resizeObserver.observe(this.container)
   }
+
+  /* ================= GUI ================= */
+
+  /* ================= Scene Panel ================= */
+
+  get isScenePanelVisible() {
+    return this.uiManager.scenePanel.isShow
+  }
+
+  openScenePanel(container) {
+    this.uiManager.openScenePanel({
+      container: container || this.container,
+      sceneManager: this.sceneManager,
+      requestRender: () => this.requestRender()
+    })
+  }
+
+  hideScenePanel() {
+    this.uiManager.hideScenePanel()
+  }
+
+  toggleScenePanel(container) {
+    if (!this.uiManager.scenePanel || !this.uiManager.scenePanel.isShow) {
+      this.openScenePanel(container)
+    }else{
+      this.hideScenePanel()
+    }
+  }
+
+
+  /* ================= Stats Panel ================= */
+
+  get isStatsPanelVisible() {
+    return this.uiManager.statsPanel.isShow
+  }
+
+  openStatsPanel(container) {
+    this.uiManager.openStatsPanel({
+      container: container || this.container,
+      scene: this.sceneManager.scene,
+      renderer: this.renderSystem.renderer
+    })
+  }
+
+  hideStatsPanel() {
+    this.uiManager.hideStatsPanel()
+  }
+
+  toggleStatsPanel(container) {
+    if (!this.uiManager.statsPanel || !this.uiManager.statsPanel.isShow) {
+      this.openStatsPanel(container)
+    }else{
+      this.hideStatsPanel()
+    }
+  }
+
+
+  /* ================= Debug Panel ================= */
+
+  get isDebugPanelVisible() {
+    return this.uiManager.debugPanel.isShow
+  }
+
+  openDebugPanel(container) {
+
+    if (!this.debugManager) {
+      this.debugManager = new DebugManager(
+        this.renderSystem.scene,
+        () => this.modelManager.getModel()
+      )
+      this.debugManager.setModelProvider(this.modelProvider)
+    }
+
+    this.uiManager.openDebugPanel({
+      container: container || this.container,
+      debugManager: this.debugManager,
+      getModel: () => this.modelManager.getModel(),
+      requestRender: () => this.requestRender()
+    })
+  }
+
+  hideDebugPanel() {
+    this.uiManager.hideDebugPanel()
+  }
+
+  toggleDebugPanel(container) {
+    if (!this.uiManager.debugPanel || !this.uiManager.debugPanel.isShow) {
+      this.openDebugPanel(container)
+    }else{
+      this.hideDebugPanel()
+    }
+  }
+
+
+  /* ================= 卸载 ================= */
+
+  /**
+   * 销毁整个 Viewer（释放所有资源）
+   */
+  dispose() {
+
+    // ==== GUI ====
+
+    this.uiManager.dispose()
+
+    this.debugManager?.dispose()
+    this.debugManager = null
+
+
+    // ==== 交互系统 ====
+
+    this.controlsSystem.dispose()
+    this.controlsSystem = null
+
+    this.pickingSystem?.dispose()
+    this.pickingSystem = null
+
+    this.cameraSystem.dispose()
+    this.cameraSystem = null
+
+
+    // ==== 模型 ====
+
+    this.modelManager.dispose()
+    this.modelProvider = null
+    this.modelManager = null
+
+    this.resourceSystem.dispose()
+    this.resourceSystem = null
+    this.ltMeshBuilder = null
+
+
+    // ==== 场景 ====
+
+    this.sceneManager.dispose()
+    this.sceneManager = null
+
+
+    // ==== 渲染系统 ====
+
+    this.renderSystem.dispose()
+    this.renderSystem = null
+
+
+    // ==== 其他 ====
+
+    this.loadingManager = null
+    this._renderRequested = false
+
+    // ==== observeResize ====
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect()
+      this._resizeObserver = null
+    }
+  }
+
+  
 }

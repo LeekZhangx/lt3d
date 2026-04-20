@@ -95,16 +95,38 @@ export class ControlsSystem {
   ========================= */
 
   /**
-   * 替换当前相机（不会重建 controls）
-   * @param {THREE.Camera} camera
+   * 替换控制器绑定的相机
+   * - 不会重建 controls
+   * - 无位置跳变
+   * 
+   * @param {THREE.Camera} newCamera
    */
-  setCamera(camera) {
-    this.camera = camera
+  setCamera(newCamera) {
+    if (this.camera === newCamera) return
 
-    if (this.controls) {
-      // OrbitControls 持有 object = camera
-      this.controls.object = camera
-    }
+      const oldCamera = this.camera
+
+      // 保存当前状态
+      const target = this.controls.target.clone()
+
+      const offset = oldCamera.position.clone().sub(target)
+      const distance = offset.length()
+
+      // 替换相机
+      this.camera = newCamera
+      this.controls.object = newCamera
+
+      // 恢复 target
+      this.controls.target.copy(target)
+
+      // 重新设置位置 避免位置跳变
+      const dir = offset.normalize()
+
+      newCamera.position.copy(target).add(dir.multiplyScalar(distance))
+      newCamera.lookAt(target)
+
+      // 更新 controls
+      this.controls.update()
   }
 
   /* =========================

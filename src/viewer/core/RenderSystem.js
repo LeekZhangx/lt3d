@@ -22,17 +22,25 @@ export class RenderSystem {
     const w = container.clientWidth
     const h = container.clientHeight
 
-    this.camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 1000)
-    this.camera.position.set(0, 1.5, 3)
-
     this.renderer = new THREE.WebGLRenderer({ antialias: true })
     this.renderer.setSize(w, h)
     this.renderer.shadowMap.enabled = true
 
     container.appendChild(this.renderer.domElement)
+
+    /**
+     * 当前使用的相机，由CameraSystem提供
+     */
+    this.camera = null
+  }
+
+  /** 设置当前渲染相机 */
+  setCamera(camera) {
+    this.camera = camera
   }
 
   render() {
+    if (!this.camera) return
     this.renderer.render(this.scene, this.camera)
   }
 
@@ -40,34 +48,26 @@ export class RenderSystem {
     const w = this.container.clientWidth
     const h = this.container.clientHeight
 
-    this.camera.aspect = w / h
-    this.camera.updateProjectionMatrix()
-
     this.renderer.setSize(w, h)
   }
 
-  /**
-   * 模型包围信息
-   * @typedef {Object} Bounds
-   * @property {THREE.Vector3} size 包围盒尺寸（宽、高、深）
-   * @property {THREE.Vector3} center 包围盒中心点（世界坐标）
-   */
 
   /**
-   * 固定相机的位置和角度
-   *
-   * 固定相机的位置和视角中心，让几何体在画面中间
-   *
-   * @param {Bounds} bounds 模型包围信息
+   * 多视口渲染（用于多相机）
+   * @param {Array<{camera: THREE.Camera, x:number, y:number, w:number, h:number}>} views
    */
-  fitCamera({size, center}) {
+  renderViews(views) {
+    const { renderer, scene } = this
 
-    const max = Math.max(size.x, size.y, size.z)
+    renderer.setScissorTest(true)
 
-    const distance = max / Math.tan((this.camera.fov * Math.PI / 180) / 2)
+    views.forEach(v => {
+      renderer.setViewport(v.x, v.y, v.w, v.h)
+      renderer.setScissor(v.x, v.y, v.w, v.h)
+      renderer.render(scene, v.camera)
+    })
 
-    this.camera.position.copy(center).add(new THREE.Vector3(distance, distance, distance))
-    this.camera.lookAt(center)
+    renderer.setScissorTest(false)
   }
 
   /**
