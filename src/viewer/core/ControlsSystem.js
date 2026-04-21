@@ -102,31 +102,45 @@ export class ControlsSystem {
    * @param {THREE.Camera} newCamera
    */
   setCamera(newCamera) {
-    if (this.camera === newCamera) return
+    const oldControls = this.controls
+    const target = oldControls.target.clone()
 
-      const oldCamera = this.camera
+    // 保存一些配置
+    const {
+      enableDamping,
+      dampingFactor,
+      enableZoom,
+      zoomSpeed
+    } = oldControls
 
-      // 保存当前状态
-      const target = this.controls.target.clone()
+    // 销毁旧 controls
+    oldControls.removeEventListener('change', this.onChange)
+    oldControls.dispose()
 
-      const offset = oldCamera.position.clone().sub(target)
-      const distance = offset.length()
+    // 创建新的
+    this.controls = new OrbitControls(newCamera, this.domElement)
 
-      // 替换相机
-      this.camera = newCamera
-      this.controls.object = newCamera
+    this.camera = newCamera
 
-      // 恢复 target
-      this.controls.target.copy(target)
+    // 恢复状态
+    this.controls.target.copy(target)
 
-      // 重新设置位置 避免位置跳变
-      const dir = offset.normalize()
+    this.controls.enableDamping = enableDamping
+    this.controls.dampingFactor = dampingFactor
+    this.controls.enableZoom = enableZoom
+    this.controls.zoomSpeed = zoomSpeed
 
-      newCamera.position.copy(target).add(dir.multiplyScalar(distance))
-      newCamera.lookAt(target)
+    // 正交相机必须初始化 zoom
+    if (newCamera.isOrthographicCamera) {
+      newCamera.zoom = 1
+      newCamera.updateProjectionMatrix()
+    }
 
-      // 更新 controls
-      this.controls.update()
+    this.controls.addEventListener('change', this.onChange)
+
+    this.controls.update()
+
+    this.controls.update()
   }
 
   /* =========================
@@ -186,6 +200,7 @@ export class ControlsSystem {
    * @param {Function} callback
    */
   onChange(callback) {
+    this.onChange = callback
     this.controls?.addEventListener('change', callback)
   }
 
@@ -207,10 +222,12 @@ export class ControlsSystem {
 
     // 1. 销毁 controls
     if (this.controls) {
+      this.controls.removeEventListener('change', this.onChange)
       this.controls.dispose?.()
     }
 
     // 2. 清理引用
+    this.onChange = null
     this.controls = null
     this.camera = null
     this.domElement = null

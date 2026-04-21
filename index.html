@@ -192,6 +192,11 @@
         <i class="bi bi-leaf" style="color: green;"></i>
       </button>
 
+      <!-- Camera -->
+      <button id="cameraBtn" class="icon-btn" title="Camera GUI">
+        <i class="bi bi-camera-reels" style="color:deepskyblue;"></i>
+      </button>
+
       <!-- Stats -->
       <button id="statsBtn" class="icon-btn" title="Stats GUI">
         <i class="bi bi-info-circle" style="color: purple;"></i>
@@ -224,12 +229,14 @@
     // ===== gui =====
 
     let showScene = false
+    let showCamera = false
     let showStats = false
     let showDebug = false
 
     const viewerContainer = document.getElementById("lt-viewer")
 
     const sceneBtn = document.getElementById("sceneBtn")
+    const cameraBtn = document.getElementById("cameraBtn")
     const statsBtn = document.getElementById("statsBtn")
     const debugBtn = document.getElementById("debugBtn")
 
@@ -237,6 +244,10 @@
       // Scene
       sceneBtn.classList.toggle("active", showScene)
       sceneBtn.innerHTML = `<i class="bi ${showScene ? 'bi-leaf-fill' : 'bi-leaf'}" style="color: green;"></i>`
+
+      // Scene
+      cameraBtn.classList.toggle("active", showCamera)
+      cameraBtn.innerHTML = `<i class="bi ${showCamera ? 'bi-camera-reels-fill' : 'bi-camera-reels'}" style="color: deepskyblue;"></i>`
 
       // Stats
       statsBtn.classList.toggle("active", showStats)
@@ -250,6 +261,12 @@
     sceneBtn.addEventListener("click", () => {
       viewer.toggleScenePanel(viewerContainer)
       showScene = viewer.isScenePanelVisible || false
+      updateButtons()
+    })
+
+    cameraBtn.addEventListener("click", () => {
+      viewer.toggleCameraPanel(viewerContainer)
+      showCamera = viewer.isCameraPanelVisible || false
       updateButtons()
     })
 

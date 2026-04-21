@@ -72,6 +72,7 @@ export class CameraSystem {
     o.quaternion.copy(p.quaternion)
 
     // 关键：匹配视野尺寸（避免跳变）
+    
     const distance = p.position.length()
     const fov = p.fov * Math.PI / 180
 

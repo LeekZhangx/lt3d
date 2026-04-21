@@ -1,3 +1,4 @@
+import { CameraPanel } from './core/CaneraPanel.js'
 import { DebugPanel } from './debug/DebugPanel.js'
 import { ScenePanel } from './scene/ScenePanel.js'
 import { StatsPanel } from './stats/StatsPanel.js'
@@ -12,6 +13,7 @@ export class UIManager {
 
   constructor() {
     this.scenePanel = null
+    this.cameraPanel = null
     this.statsPanel = null
     this.debugPanel = null
   }
@@ -66,6 +68,55 @@ export class UIManager {
       this.openScenePanel(params)
     } else {
       this.hideScenePanel()
+    }
+  }
+
+  // ===============================
+  // Camera Panel
+  // ===============================
+
+  /**
+   * 打开 Camera 面板（用于切换相机类型）
+   *
+   * @param {Object} params
+   * @param {HTMLElement} params.container 面板挂载容器
+   * @param {() => 'perspective' | 'orthographic'} params.getType 获取当前相机类型（用于初始化 GUI 状态）
+   * @param {(type: 'perspective' | 'orthographic') => void} params.onSwitch 相机切换回调（由外部执行实际切换逻辑）
+   */
+  openCameraPanel({ container, getType, onSwitch }) {
+    if (!this.cameraPanel) {
+      this.cameraPanel = new CameraPanel({
+        getType,
+        onSwitch
+      })
+
+      this.cameraPanel.enableGUI(container)
+    } else {
+      this.cameraPanel.showGUI()
+    }
+  }
+
+  /**
+   * 隐藏 Scene 面板
+   */
+  hideCameraPanel() {
+    if (this.cameraPanel) {
+      this.cameraPanel.hideGUI()
+    }
+  }
+
+  /**
+   * 切换 Camera 面板显示状态
+   *
+   * @param {Object} params
+   * @param {HTMLElement} params.container 面板挂载容器
+   * @param {SceneManager} params.sceneManager 场景管理器
+   */
+  toggleCameraPanel(params) {
+    if (!this.cameraPanel || !this.cameraPanel.isShow) {
+      this.openCameraPanel(params)
+    } else {
+      this.hideCameraPanel()
     }
   }
 
@@ -166,6 +217,23 @@ export class UIManager {
     } else {
       this.hideDebugPanel()
     }
+  }
+
+  /**
+   * 销毁全部的GUI
+   */
+  dispose(){
+    this.scenePanel?.dispose()
+    this.scenePanel = null
+
+    this.cameraPanel?.dispose()
+    this.cameraPanel = null
+
+    this.statsPanel?.dispose()
+    this.statsPanel = null
+
+    this.debugPanel?.dispose()
+    this.debugPanel = null
   }
   
 }

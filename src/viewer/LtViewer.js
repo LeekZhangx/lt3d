@@ -197,33 +197,6 @@ export class LtViewer {
     this.statsPanel?.recordRender()
   }
 
-  /* ================= 相机 ================= */
-
-  /**
-   * 设置相机类型 透视/正交
-   * 
-   * @param {string} type 
-   */
-  setActiveCamera(type) {
-
-    // 先同步（关键顺序）
-    this.cameraSystem.syncCameras()
-
-    if (type === 'perspective') {
-      this.cameraSystem.setPerspective()
-    } else {
-      this.cameraSystem.setOrthographic()
-    }
-
-    const cam = this.cameraSystem.getCamera()
-
-    // 同步更新相机
-    this.renderSystem.setCamera(cam)
-    this.controlsSystem.setCamera(cam)
-
-    this.requestRender()
-  }
-
   /* ================= resize ================= */
 
   /**
@@ -281,6 +254,65 @@ export class LtViewer {
     }
   }
 
+  /* ================= Camera Panel ================= */
+
+  get isCameraPanellVisible() {
+    return this.uiManager.cameraPanel.isShow
+  }
+
+  openCameraPanel(container) {
+    this.uiManager.openCameraPanel({
+      container,
+
+      // 当前类型（给 UI 初始值）
+      getType: () => {
+        return this.cameraSystem.getCamera().isPerspectiveCamera
+          ? 'perspective'
+          : 'orthographic'
+      },
+
+      // 切换相机
+      // 需要 相机 和 控制器一起配合行动 只能进行回调
+      // 相机更换后 Renderer和Controls都需要更新相机
+      onSwitch: (type) => {
+        console.log(type);
+        
+        // 同步状态（防止跳）
+        this.cameraSystem.syncCameras()
+
+        // 切换相机
+        if (type === 'perspective') {
+          this.cameraSystem.setPerspective()
+        } else {
+          this.cameraSystem.setOrthographic()
+        }
+
+        // 通知 controls
+        this.controlsSystem.setCamera(
+          this.cameraSystem.getCamera()
+        )
+
+        this.renderSystem.setCamera(
+          this.cameraSystem.getCamera()
+        )
+
+        this.requestRender()
+
+      }
+    })
+  }
+
+  hideCameraPanel() {
+    this.uiManager.hideCameraPanel()
+  }
+
+  toggleCameraPanel(container) {
+    if (!this.uiManager.cameraPanel || !this.uiManager.cameraPanel.isShow) {
+      this.openCameraPanel(container)
+    }else{
+      this.hideCameraPanel()
+    }
+  }
 
   /* ================= Stats Panel ================= */
 
