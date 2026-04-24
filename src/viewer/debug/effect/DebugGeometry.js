@@ -1,9 +1,9 @@
 import * as THREE from 'three'
 import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper.js'
-import { DebugMode } from './DebugMode.js'
+import { DebugMode } from '../DebugMode.js'
 
 /**
- * 几何调试
+ * 几何体效果显示 高亮提示几何体的线框、边界、顶点等
  */
 export class DebugGeometry {
 

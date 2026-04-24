@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { GUI } from 'lil-gui'
 import { StatsManager } from './StatsManager.js'
-import { GuiTheme } from '../util/GuiTheme.js'
+import { GuiTheme } from '../gui/GuiTheme.js'
 
 
 /**
@@ -12,13 +12,11 @@ export class StatsPanel {
   /**
    * 实例化 性能统计 GUI 控制面板
    *
-   * @param {THREE.scene} scene 场景
-   * @param {THREE.Renderer} renderer 渲染器
+   * @param {StatsManager} statsManager 场景管理器
    *
    */
-  constructor(scene, renderer) {
-    this.scene = scene
-    this.renderer = renderer
+  constructor(statsManager) {
+
     this.gui = null
 
     /**
@@ -27,7 +25,7 @@ export class StatsPanel {
     this.isShow = false
 
     /* ===== 统计数据部分 ===== */
-    this.statsManager = new StatsManager(this.renderer)
+    this.statsManager = statsManager
 
     this.stats = this.statsManager.stats
 
@@ -108,9 +106,6 @@ export class StatsPanel {
     this.statsManager = null
     this.stats = null
     this.getModel = null
-
-    this.renderer = null
-    this.scene = null
 
     this.isShow = false
   }

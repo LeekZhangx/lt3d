@@ -1,7 +1,11 @@
-import { CameraPanel } from './core/CaneraPanel.js'
-import { DebugPanel } from './debug/DebugPanel.js'
-import { ScenePanel } from './scene/ScenePanel.js'
-import { StatsPanel } from './stats/StatsPanel.js'
+import { CameraController } from '../camera/CameraController.js'
+import { CameraPanel } from '../camera/CaneraPanel.js'
+import { DebugController } from '../debug/DebugController.js'
+import { DebugPanel } from '../debug/DebugPanel.js'
+import { SceneController } from '../scene/SceneController.js'
+import { ScenePanel } from '../scene/ScenePanel.js'
+import { StatsManager } from '../stats/StatsManager.js'
+import { StatsPanel } from '../stats/StatsPanel.js'
 
 /**
  * UI 管理器
@@ -36,12 +40,12 @@ export class UIManager {
    *
    * @param {Object} params
    * @param {HTMLElement} params.container 面板挂载容器
-   * @param {SceneManager} params.sceneManager 场景管理器（提供场景控制能力）
+   * @param {SceneController} params.sceneController 调试控制器
    */
-  openScenePanel({ container, sceneManager }) {
+  openScenePanel({ container, sceneController }) {
     if (!this.scenePanel) {
-      this.scenePanel = new ScenePanel(sceneManager)
-      this.scenePanel.enableGUI(container)
+      this.scenePanel = new ScenePanel()
+      this.scenePanel.enableGUI(sceneController, container)
     } else {
       this.scenePanel.showGUI()
     }
@@ -61,7 +65,7 @@ export class UIManager {
    *
    * @param {Object} params
    * @param {HTMLElement} params.container 面板挂载容器
-   * @param {SceneManager} params.sceneManager 场景管理器
+   * @param {SceneController} params.sceneController 调试控制器
    */
   toggleScenePanel(params) {
     if (!this.scenePanel || !this.scenePanel.isShow) {
@@ -80,15 +84,11 @@ export class UIManager {
    *
    * @param {Object} params
    * @param {HTMLElement} params.container 面板挂载容器
-   * @param {() => 'perspective' | 'orthographic'} params.getType 获取当前相机类型（用于初始化 GUI 状态）
-   * @param {(type: 'perspective' | 'orthographic') => void} params.onSwitch 相机切换回调（由外部执行实际切换逻辑）
+   * @param {CameraController} params.cameraController 相机控制器
    */
-  openCameraPanel({ container, getType, onSwitch }) {
+  openCameraPanel({ container, cameraController }) {
     if (!this.cameraPanel) {
-      this.cameraPanel = new CameraPanel({
-        getType,
-        onSwitch
-      })
+      this.cameraPanel = new CameraPanel(cameraController)
 
       this.cameraPanel.enableGUI(container)
     } else {
@@ -110,7 +110,7 @@ export class UIManager {
    *
    * @param {Object} params
    * @param {HTMLElement} params.container 面板挂载容器
-   * @param {SceneManager} params.sceneManager 场景管理器
+   * @param {SceneManager} params.cameraController 相机控制器
    */
   toggleCameraPanel(params) {
     if (!this.cameraPanel || !this.cameraPanel.isShow) {
@@ -129,12 +129,11 @@ export class UIManager {
    *
    * @param {Object} params
    * @param {HTMLElement} params.container 面板挂载容器
-   * @param {THREE.Scene} params.scene Three.js 场景
-   * @param {THREE.WebGLRenderer} params.renderer 渲染器
+   * @param {StatsManager} params.statsManager 心机统计管理器
    */
-  openStatsPanel({ container, scene, renderer }) {
+  openStatsPanel({ container, statsManager}) {
     if (!this.statsPanel) {
-      this.statsPanel = new StatsPanel(scene, renderer)
+      this.statsPanel = new StatsPanel(statsManager)
       this.statsPanel.enableGUI(container)
     } else {
       this.statsPanel.showGUI()
@@ -154,9 +153,8 @@ export class UIManager {
    * 切换 Stats 面板显示状态
    *
    * @param {Object} params
-   * @param {HTMLElement} params.container
-   * @param {THREE.Scene} params.scene
-   * @param {THREE.WebGLRenderer} params.renderer
+   * @param {HTMLElement} params.container 面板挂载容器
+   * @param {StatsManager} params.statsManager 场景管理器
    */
   toggleStatsPanel(params) {
     if (!this.statsPanel || !this.statsPanel.isShow) {
@@ -175,18 +173,14 @@ export class UIManager {
    *
    * @param {Object} params
    * @param {HTMLElement} params.container 面板挂载容器
-   * @param {DebugManager} params.debugManager 调试管理器
-   * @param {() => THREE.Object3D} params.getModel 获取当前模型
-   * @param {() => void} params.requestRender 请求重新渲染
+   * @param {DebugController} params.debugController 调试控制器
    */
-  openDebugPanel({ container, debugManager, getModel, requestRender }) {
+  openDebugPanel({ container, debugController}) {
     if (!this.debugPanel) {
-      this.debugPanel = new DebugPanel(debugManager)
+      this.debugPanel = new DebugPanel(debugController)
 
       this.debugPanel.enableGUI(
-        getModel,
-        container,
-        requestRender
+        container
       )
     } else {
       this.debugPanel.showGUI()
@@ -206,10 +200,8 @@ export class UIManager {
    * 切换 Debug 面板显示状态
    *
    * @param {Object} params
-   * @param {HTMLElement} params.container
-   * @param {DebugManager} params.debugManager
-   * @param {() => THREE.Object3D} params.getModel
-   * @param {() => void} params.requestRender
+   * @param {HTMLElement} params.container 面板挂载容器
+   * @param {DebugController} params.debugController 调试控制器
    */
   toggleDebugPanel(params) {
     if (!this.debugPanel || !this.debugPanel.isShow) {

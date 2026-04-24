@@ -3,16 +3,16 @@ import { RenderSystem } from './core/RenderSystem.js'
 import { SceneManager } from './scene/SceneManager.js'
 import { ModelManager } from './model/ModelManager.js'
 import { DebugManager } from './debug/DebugManager.js'
-import { DebugPanel } from './debug/DebugPanel.js'
 import { ControlsSystem } from './core/ControlsSystem.js'
-import { ScenePanel } from './scene/ScenePanel.js'
-import { StatsPanel } from './stats/StatsPanel.js'
-import { TextureCache } from '../core/tile3d/texture/TextureCache.js'
 import { LtMeshBuilder } from '../core/tile3d/LtMeshBuilder.js'
 import { LT_VERSION } from '../core/version/LtVersion.js'
 import { ResourceSystem } from '../core/tile3d/resource/ResourceSystem.js'
 import { CameraSystem } from './core/CameraSystem.js'
-import { UIManager } from './UIManager.js'
+import { UIManager } from './gui/UIManager.js'
+import { SceneController } from './scene/SceneController.js'
+import { StatsManager } from './stats/StatsManager.js'
+import { DebugController } from './debug/DebugController.js'
+import { CameraController } from './camera/CameraController.js'
 
 export class LtViewer {
 
@@ -27,29 +27,46 @@ export class LtViewer {
 
     this.options = options
 
+    //===== 核心系统 ====
+
     this.renderSystem = null
     this.cameraSystem = null
     this.controlsSystem = null
     this.pickingSystem = null
 
-    this.uiManager = null
+    this._renderRequested = false
+    this._resizeObserver = null
 
     this.sceneManager = null
 
     this.modelManager = null
+    /**
+     * 模型的空间信息函数，包含 getBox getSize getCenter
+     */
     this.modelProvider = null
 
-    this.debugManager = null
-
     //===== 资源系统 =====
+
     this.loadingManager = null
 
     this.resourceSystem = null
 
     this.ltMeshBuilder = null
 
-    this._renderRequested = false
-    this._resizeObserver = null
+    //==== GUI 部分 ====
+    //下属对象都是其各自模块GUI依赖的对象
+
+    this.uiManager = null
+
+    this.cameraController = null
+
+    this.sceneController = null
+
+    this.statsManager = null
+
+    this.debugManager = null
+    this.debugController = null
+
   }
 
   init() {
@@ -144,7 +161,9 @@ export class LtViewer {
 
     if (this.modelManager.analyze()) {
       const bounds = this.modelManager.getBounds()
-      
+
+      this.cameraSystem.fit(bounds)
+
       this.controlsSystem.fitCenter(bounds.center)
 
       this.sceneManager.updateSceneItems()
@@ -235,10 +254,17 @@ export class LtViewer {
   }
 
   openScenePanel(container) {
+
+    if(!this.sceneController){
+      this.sceneController = new SceneController(
+        this.sceneManager, 
+        () => this.requestRender()
+      )
+    }
+
     this.uiManager.openScenePanel({
       container: container || this.container,
-      sceneManager: this.sceneManager,
-      requestRender: () => this.requestRender()
+      sceneController: this.sceneController,
     })
   }
 
@@ -256,50 +282,24 @@ export class LtViewer {
 
   /* ================= Camera Panel ================= */
 
-  get isCameraPanellVisible() {
+  get isCameraPanelVisible() {
     return this.uiManager.cameraPanel.isShow
   }
 
   openCameraPanel(container) {
-    this.uiManager.openCameraPanel({
-      container,
 
-      // 当前类型（给 UI 初始值）
-      getType: () => {
-        return this.cameraSystem.getCamera().isPerspectiveCamera
-          ? 'perspective'
-          : 'orthographic'
-      },
-
-      // 切换相机
-      // 需要 相机 和 控制器一起配合行动 只能进行回调
-      // 相机更换后 Renderer和Controls都需要更新相机
-      onSwitch: (type) => {
-        console.log(type);
-        
-        // 同步状态（防止跳）
-        this.cameraSystem.syncCameras()
-
-        // 切换相机
-        if (type === 'perspective') {
-          this.cameraSystem.setPerspective()
-        } else {
-          this.cameraSystem.setOrthographic()
-        }
-
-        // 通知 controls
-        this.controlsSystem.setCamera(
-          this.cameraSystem.getCamera()
-        )
-
-        this.renderSystem.setCamera(
-          this.cameraSystem.getCamera()
-        )
-
-        this.requestRender()
-
-      }
+    this.cameraController = new CameraController({
+      cameraSystem: this.cameraSystem,
+      controlsSystem: this.controlsSystem,
+      renderSystem: this.renderSystem,
+      requestRender: () => this.requestRender()
     })
+
+    this.uiManager.openCameraPanel({
+      container: container || this.container,
+      cameraController: this.cameraController
+    })
+
   }
 
   hideCameraPanel() {
@@ -321,10 +321,11 @@ export class LtViewer {
   }
 
   openStatsPanel(container) {
+    this.statsManager = new StatsManager(this.renderSystem.renderer)
+
     this.uiManager.openStatsPanel({
       container: container || this.container,
-      scene: this.sceneManager.scene,
-      renderer: this.renderSystem.renderer
+      statsManager: this.statsManager
     })
   }
 
@@ -355,13 +356,16 @@ export class LtViewer {
         () => this.modelManager.getModel()
       )
       this.debugManager.setModelProvider(this.modelProvider)
+
+      this.debugController = new DebugController(
+        this.debugManager,
+        () => this.requestRender()
+      )
     }
 
     this.uiManager.openDebugPanel({
       container: container || this.container,
-      debugManager: this.debugManager,
-      getModel: () => this.modelManager.getModel(),
-      requestRender: () => this.requestRender()
+      debugController: this.debugController,
     })
   }
 
@@ -389,8 +393,19 @@ export class LtViewer {
 
     this.uiManager.dispose()
 
+    this.sceneController?.dispose()
+    this.sceneController = null
+
+    this.cameraController?.dispose()
+    this.cameraController = null
+
+    this.debugController?.dispose()
+    this.debugController = null
     this.debugManager?.dispose()
     this.debugManager = null
+
+    this.statsManager?.dispose()
+    this.statsManager = null
 
 
     // ==== 交互系统 ====

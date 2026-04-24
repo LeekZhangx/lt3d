@@ -16,6 +16,8 @@ export class CameraSystem {
     const height = container.clientHeight
     this.aspect = width / height
 
+    this.target = new THREE.Vector3()
+
     this.perspective = this._createPerspective()
     this.orthographic = this._createOrthographic()
 
@@ -60,31 +62,72 @@ export class CameraSystem {
   }
 
   /**
-   * 同步两个相机的“视觉状态”
+   * 同步两个相机的视觉状态（双向）
+   * 
+   * @param {'perspective'|'orthographic'} targetType
    */
-  syncCameras() {
+  syncCameras(targetType) {
 
     const p = this.perspective
     const o = this.orthographic
 
-    // 方向一致
-    o.position.copy(p.position)
-    o.quaternion.copy(p.quaternion)
+    const center = this.target
 
-    // 关键：匹配视野尺寸（避免跳变）
-    
-    const distance = p.position.length()
-    const fov = p.fov * Math.PI / 180
+    let source, target
 
-    const height = 2 * Math.tan(fov / 2) * distance
+    if (targetType === 'orthographic') {
+      source = p
+      target = o
+    } else {
+      source = o
+      target = p
+    }
 
-    o.top = height / 2
-    o.bottom = -height / 2
-    o.right = (height * p.aspect) / 2
-    o.left = -(height * p.aspect) / 2
+    // =========================
+    // 同步方向
+    // =========================
+    target.quaternion.copy(source.quaternion)
 
-    o.updateProjectionMatrix()
-  }
+    const dir = new THREE.Vector3()
+    source.getWorldDirection(dir)
+
+    // =========================
+    // 透视 → 正交
+    // =========================
+    if (source.isPerspectiveCamera && target.isOrthographicCamera) {
+
+      const distance = source.position.distanceTo(center)
+      const fov = source.fov * Math.PI / 180
+
+      const height = 2 * Math.tan(fov / 2) * distance
+      const width = height * source.aspect
+
+      target.top = height / 2
+      target.bottom = -height / 2
+      target.left = -width / 2
+      target.right = width / 2
+
+      target.zoom = 1
+      target.updateProjectionMatrix()
+
+      // 同步位置（围绕 center）
+      target.position.copy(center).addScaledVector(dir.negate(), distance)
+    }
+
+    // =========================
+    // 正交 → 透视
+    // =========================
+    if (source.isOrthographicCamera && target.isPerspectiveCamera) {
+
+      const height = (source.top - source.bottom) / source.zoom
+
+      const fov = target.fov * Math.PI / 180
+      const distance = height / (2 * Math.tan(fov / 2))
+
+      target.position.copy(center).addScaledVector(dir.negate(), distance)
+      target.updateProjectionMatrix()
+    }
+}
 
   /**
    * resize 同步
@@ -118,22 +161,62 @@ export class CameraSystem {
    * @param {Bounds} bounds
    * @returns {{ center: THREE.Vector3 }}
    */
-  fit({ size, center }) {
+  fit(bounds) {
+
+    const { size, center } = bounds
+
     const cam = this.currentCamera
 
-    const max = Math.max(size.x, size.y, size.z)
+    // 保存 target
+    this.target.copy(center)
+
+    // =========================
+    // 1. 方向（斜视）
+    // =========================
+    const dir = new THREE.Vector3(1, 1, 1).normalize()
+
+    // =========================
+    // 2. 用包围球算半径
+    // =========================
+    let radius = size.length() / 2
+
+    radius = radius * 4
+
+    // =========================
+    // 3. 根据相机类型算 distance
+    // =========================
+
+    let distance
 
     if (cam.isPerspectiveCamera) {
-      const distance = max / Math.tan((cam.fov * Math.PI / 180) / 2)
-      cam.position.copy(center).addScalar(distance)
-    }
 
-    if (cam.isOrthographicCamera) {
-      cam.zoom = 1 / (max * 0.2)
+      const fov = cam.fov * Math.PI / 180
+
+      distance = radius / Math.sin(fov / 2)
+
+    } else {
+
+      // 正交：不靠 distance 控制，而是 zoom
+      const aspect = (cam.right - cam.left) / (cam.top - cam.bottom)
+
+      const fitHeight = size.y
+      const fitWidth = size.x / aspect
+
+      const fitSize = Math.max(fitHeight, fitWidth)
+
+      const padding = 4
+
+      cam.zoom = (cam.top - cam.bottom) / (fitSize * padding)
       cam.updateProjectionMatrix()
 
-      cam.position.copy(center).add(new THREE.Vector3(0, max, 0))
+      // distance 只用来“放置位置”
+      distance = radius * 2
     }
+
+    // =========================
+    // 4. 设置位置
+    // =========================
+    cam.position.copy(center).addScaledVector(dir, distance)
 
     cam.lookAt(center)
 
@@ -170,6 +253,8 @@ export class CameraSystem {
 
     // 当前相机引用
     this.currentCamera = null
+
+    this.target = null
 
     // 两个相机（仅断引用，帮助 GC）
     this.perspective = null

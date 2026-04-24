@@ -236,7 +236,7 @@ export class SceneManager {
    * @param {number} v
    */
   setDirectLightIntensity(v) {
-    if (!this.lights.direct){
+    if (this.lights.direct){
       this.lights.direct.intensity = v
     }
   }

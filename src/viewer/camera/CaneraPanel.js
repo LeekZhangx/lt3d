@@ -1,11 +1,15 @@
 import GUI from "lil-gui"
-import { GuiTheme } from "../util/GuiTheme"
+import { GuiTheme } from "../gui/GuiTheme"
+import { CameraController } from "./CameraController"
 
 export class CameraPanel {
 
-  constructor({ getType, onSwitch }) {
-    this.getType = getType
-    this.onSwitch = onSwitch
+  /**
+   * 
+   * @param {CameraController} cameraController 
+   */
+  constructor(cameraController) {
+    this.controller = cameraController
 
     this.isShow = false
     this.gui = null
@@ -19,14 +23,14 @@ export class CameraPanel {
     })
 
     const state = {
-      type: this.getType()
+      type: this.controller.getType()
     }
 
     this.gui
       .add(state, 'type', ['perspective', 'orthographic'])
       .name('Camera Type')
       .onChange((v) => {
-        this.onSwitch(v)
+        this.controller.switchCamera(v)
       })
 
     const theme = guiTheme ?? GuiTheme.THEME.BLUE
@@ -52,11 +56,10 @@ export class CameraPanel {
   dispose() {
     if (!this.gui) return
 
-    this.getType = getType
-    this.onSwitch = onSwitch
-
     this.gui.destroy()
     this.gui = null
+
+    this.controller = null
 
     this.isShow = false
   }

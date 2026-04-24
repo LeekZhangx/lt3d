@@ -1,8 +1,7 @@
-import * as THREE from 'three'
 import { GUI } from 'lil-gui'
 import { DebugMode } from './DebugMode.js'
-import { DebugManager } from './DebugManager.js'
-import { GuiTheme } from '../util/GuiTheme.js'
+import { GuiTheme } from '../gui/GuiTheme.js'
+import { DebugController } from './DebugController.js'
 
 /**
  * 几何体 Debug GUI 控制面板
@@ -11,42 +10,37 @@ export class DebugPanel {
 
   /**
    * 实例化 几何体 Debug GUI 控制面板
-   * @param {DebugManager} debugManager
+   * @param {DebugController} debugController
    */
-  constructor(debugManager) {
-    this.debugManager = debugManager
+  constructor(debugController) {
+    this.controller = debugController
     this.gui = null
 
     /**
      * 当前GUI是否显示
      */
     this.isShow = false
-    this.getModel = null
   }
 
   /**
    * 启用 GUI
    *
-   * @param {() => THREE.Object3D | null} getModel 获取当前模型对象的方法（懒获取，避免缓存过期）
    * @param {HTMLDivElement} container GUI 挂载的 DOM 容器
-   * @param {() => void} requestRender 请求重新渲染的方法（用于 GUI 改变后刷新画面）
    * @param {keyof GuiTheme.THEME} guiTheme gui主题， 获取自 GuiTheme.THEME
    * @returns {void}
    */
-  enableGUI(getModel, container, requestRender, guiTheme) {
+  enableGUI(container, guiTheme) {
     if (this.gui) {
       this.showGUI()
       return
     }
-
-    this.getModel = getModel
 
     this.gui = new GUI({
       title: 'Debug',
       container
     })
 
-    const geoState = this.debugManager.geoState
+    const geoState = this.controller.getGeoState()
 
     /* ========= Geometry ========= */
     const geoFolder = this.gui.addFolder('Geometry')
@@ -54,93 +48,61 @@ export class DebugPanel {
 
     geoFolder.add(geoState, 'debugMode', Object.values(DebugMode))
       .onChange((val) => {
-        this.debugManager.setDebugMode(val)
-        requestRender?.()
+        this.controller.setDebugMode(val)
       })
 
     geoFolder.add(geoState, 'depthTest')
       .onChange(() => {
-        this.debugManager.updateDepth(geoState)
-        requestRender?.()
+        this.controller.updateDepth(geoState)
       })
 
     geoFolder.add(geoState, 'depthWrite')
       .onChange(() => {
-        this.debugManager.updateDepth(geoState)
-        requestRender?.()
+        this.controller.updateDepth(geoState)
       })
 
     geoFolder.add(geoState, 'renderOrder', 0, 2000, 1)
       .onChange((val) => {
-        this.debugManager.updateRenderOrder(val)
-        requestRender?.()
+        this.controller.updateRenderOrder(val)
       })
 
     geoFolder.add(geoState, 'showModel')
       .onChange((val) => {
-        this.debugManager.setShowModel(val, this.getModel())
-        requestRender?.()
+        this.controller.setShowModel(val)
       })
 
     /* ========= Helper ========= */
     const helperFolder = this.gui.addFolder('Helper')
     helperFolder.close()
 
-    const helperState = this.debugManager.helperState
+    const helperState = this.controller.getHelperState()
 
     helperFolder.add(helperState, 'showGroundGrid')
       .onChange(v => {
-        this.debugManager.setGroundGridHelper(v)
-        requestRender?.()
+        this.controller.setGroundGridHelper(v)
       })
 
     helperFolder.add(helperState, 'showAxes')
       .onChange(v => {
-        this.debugManager.setAxesHelper(v)
-        requestRender?.()
+        this.controller.setAxesHelper(v)
       })
 
     helperFolder.add(helperState, 'showBorder')
       .onChange(v => {
-        this.debugManager.setBorderHelper(v, this.debugManager.getBox())
-        requestRender?.()
+        this.controller.setBorderHelper(v)
       })
 
     helperFolder.add(helperState, 'showOrigin')
       .onChange(v => {
-        this.debugManager.setOriginHelper(v)
-        requestRender?.()
+        this.controller.setOriginHelper(v)
       })
 
-    this.applyDebugState(geoState, helperState, this.getModel())
-    requestRender?.()
+    this.controller.applyDebugState(geoState, helperState)
 
 
     const theme = guiTheme ?? GuiTheme.THEME.WARM
     GuiTheme.apply(this.gui, theme)
     this.isShow = true
-  }
-
-  /**
-   * 按照状态激活一次相应的控件
-   *
-   * GUI创建控件和绑定事件，不会激活一次方法，需要手动同步初始化状态
-   *
-   * @param {object} geoState
-   * @param {object} helperState
-   * @param {THREE.Object3D} obj
-   */
-  applyDebugState(geoState, helperState, obj) {
-
-    this.debugManager.setDebugMode(geoState.debugMode, obj)
-    this.debugManager.updateDepth(geoState)
-    this.debugManager.updateRenderOrder(geoState.renderOrder)
-    this.debugManager.setShowModel(geoState.showModel, obj)
-
-    this.debugManager.setGroundGridHelper(helperState.showGroundGrid)
-    this.debugManager.setAxesHelper(helperState.showAxes)
-    this.debugManager.setBorderHelper(helperState.showBorder, this.debugManager.getBox())
-    this.debugManager.setOriginHelper(helperState.showOrigin)
   }
 
   showGUI() {
@@ -170,9 +132,7 @@ export class DebugPanel {
     this.gui.destroy()
     this.gui = null
 
-    // 断开引用（防止内存泄漏）
-    this.getModel = null
-    this.debugManager = null
+    this.controller = null
 
     this.isShow = false
   }

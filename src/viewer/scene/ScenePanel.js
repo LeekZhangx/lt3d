@@ -1,7 +1,7 @@
 import { GUI } from 'lil-gui'
-import { SceneManager } from './SceneManager.js'
-import { GuiTheme } from '../util/GuiTheme.js'
+import { GuiTheme } from '../gui/GuiTheme.js'
 import { SCENE_CONFIG } from '../config/config.js'
+import { SceneController } from './SceneController.js'
 
 /**
  * 场景环境 GUI 控制面板
@@ -13,10 +13,14 @@ export class ScenePanel {
 
   /**
    * 实例化 场景环境 GUI 控制面板
-   * @param {SceneManager} sceneManager
+   * 
+   * 需要调用 enableGUI 实现数据填充和关联
    */
-  constructor(sceneManager) {
-    this.sceneManager = sceneManager
+  constructor() {
+
+    /** @type {SceneController} */
+    this.controller = null
+
     this.gui = null
 
     /**
@@ -24,7 +28,7 @@ export class ScenePanel {
      */
     this.isShow = false
 
-    this.controller = {
+    this.controls = {
       dirLightX: null,
       dirLightY: null,
       dirLightZ: null
@@ -35,12 +39,12 @@ export class ScenePanel {
   /**
    * 启用GUI
    *
-   * @param {HTMLDivElement} GUI 挂载的 DOM 容器
-   * @param {() => void} requestRender 请求重新渲染的方法（用于 GUI 改变后刷新画面）
-   * @param {keyof GuiTheme.THEME} guiTheme gui主题， 获取自 GuiTheme.THEME
+   * @param {SceneController} controller SceneController 场景控制器
+   * @param {HTMLDivElement} container GUI 挂载的 DOM 容器
+   * @param {keyof GuiTheme.THEME} [guiTheme] gui主题， 获取自 GuiTheme.THEME
    * @returns
    */
-  enableGUI(container, requestRender, guiTheme) {
+  enableGUI(controller, container, guiTheme) {
     if (this.gui) return
 
     this.gui = new GUI({
@@ -48,51 +52,44 @@ export class ScenePanel {
       container
     })
 
+    this.controller = controller
 
     // ===== 定向光 =====
-    const directLight = this.sceneManager.lights.direct
+    const directLightState = this.controller.getDirectLightState()
+
 
     const directLightFolder = this.gui.addFolder('Direct Light')
 
-    directLightFolder.add(directLight, 'intensity', 0, 5, 0.1)
+    directLightFolder.add(directLightState, 'intensity', 0, 5, 0.1)
       .onChange(v => {
-        this.sceneManager.setDirectLightIntensity(v)
-        requestRender?.()
+        this.controller.updateDirectLightIntensity(v)
     })
 
-    this.controller.dirLightX = directLightFolder.add(directLight.position, 'x', -10, 10)
+    this.controls.dirLightX = directLightFolder.add(directLightState, 'x', -10, 10)
       .onChange(v => {
-        requestRender?.()
+        this.controller.updateDirectLightPosition({ x: v })
     })
-    this.controller.dirLightY = directLightFolder.add(directLight.position, 'y', 0, 50)
+    this.controls.dirLightY = directLightFolder.add(directLightState, 'y', 0, 50)
       .onChange(v => {
-        requestRender?.()
+        this.controller.updateDirectLightPosition({ y: v })
     })
-    this.controller.dirLightZ = directLightFolder.add(directLight.position, 'z', -10, 10)
+    this.controls.dirLightZ = directLightFolder.add(directLightState, 'z', -10, 10)
       .onChange(v => {
-        requestRender?.()
+        this.controller.updateDirectLightPosition({ z: v })
     })
 
     // ===== 环境光 =====
     const ambientLightFolder = this.gui.addFolder('Ambient Light')
 
-    const ambientLight = this.sceneManager.lights.ambient
+    const ambientLightState = this.controller.getAmbientLightState()
 
-    ambientLightFolder.add(ambientLight, 'intensity', 0, 5, 0.1)
+    ambientLightFolder.add(ambientLightState, 'intensity', 0, 5, 0.1)
       .onChange(v => {
-        this.sceneManager.setAmbientLightIntensity(v)
-        requestRender?.()
+        this.controller.updateAmbientLightIntensity(v)
     })
 
     // ===== 地面 =====
-    const ground = this.sceneManager.ground
-
-    const groundState = {
-      scale: ground.scale.x,
-      visible: true,
-      texturePath: '',
-      textureType: null
-    }
+    const groundState = this.controller.getGroundState()
 
     const groundFolder = this.gui.addFolder('Ground Plane')
 
@@ -100,8 +97,7 @@ export class ScenePanel {
     groundFolder.add(groundState, 'visible')
       .name('visible')
       .onChange(v => {
-        this.sceneManager.setGroundVisible(v)
-        requestRender?.()
+        this.controller.updateGroundVisible(v)
       })
 
 
@@ -109,9 +105,8 @@ export class ScenePanel {
     groundFolder.add(groundState, 'scale', 1, 100)
       .name('scale')
       .step(1)
-      .onChange(val => {
-        this.sceneManager.setGroundScale(val)
-        requestRender?.()
+      .onChange(v => {
+        this.controller.updateGroundScale(v)
       })
 
 
@@ -131,76 +126,37 @@ export class ScenePanel {
       .name('texture')
       .onChange(key => {
         const tex = textures[key]
-
-        this.sceneManager.setGroundTexture(tex.path, tex.color)
-
-        requestRender?.()
+        this.controller.updateGroundTexture(tex.path, tex.color )
       })
 
-
-
-    this.applySceneState({
-      directLight,
-      ambientLight,
+    this.controller.applySceneState({
+      directLightState,
+      ambientLightState,
       groundState
-    })
+    })  
 
     this.updateGUI()
-    requestRender?.()
 
     const theme = guiTheme ?? GuiTheme.THEME.GREEN
     GuiTheme.apply(this.gui, theme)
     this.isShow = true
   }
 
-  /**
-   * @typedef {Object} sceneStateParam
-   * @property {object} [directLight] 定向光对象
-   * @property {object} [ambientLight] 环境光对象
-   * @property {groundState} [groundState] 地面状态
-   *
-   * @typedef {Object} groundState 地面状态
-   * @property {boolean} [visible] visible 地面是否可见
-   * @property {string} [texturePath] 地面贴图路径
-   */
-
-  /**
-   * 应用默认场景设置
-   *
-   * GUI创建控件和绑定事件，不会激活一次方法，需要手动同步初始化状态
-   *
-   * @param {sceneStateParam} sceneStateParam
-   */
-  applySceneState({ directLight, ambientLight, groundState }) {
-    this.sceneManager.setDirectLightIntensity(directLight.intensity)
-    this.sceneManager.setAmbientLightIntensity?.(ambientLight.intensity)
-
-    this.sceneManager.lights.direct.position.copy(directLight.position)
-
-    this.sceneManager.setGroundVisible(groundState.visible)
-    this.sceneManager.setGroundTexture(groundState.texturePath)
-  }
 
   /**
    * 更新GUI控件中，灯光位移范围
    */
   updateLightRange() {
-    const size = this.sceneManager.getSize()
-    const center = this.sceneManager.getCenter()
+    const range = this.controller.getLightRange()
+    if (!range) return
 
-    const range = Math.ceil(Math.max(size.x, size.y, size.z)) * 4
+    this.controls.dirLightX.min(range.x[0]).max(range.x[1])
+    this.controls.dirLightY.min(range.y[0]).max(range.y[1])
+    this.controls.dirLightZ.min(range.z[0]).max(range.z[1])
 
-    const x = Math.ceil(center.x)
-    const y = Math.ceil(center.y)
-    const z = Math.ceil(center.z)
-
-    this.controller.dirLightX.min(x - range).max(x + range)
-    this.controller.dirLightY.min(0).max(y + range)
-    this.controller.dirLightZ.min(z - range).max(z + range)
-
-    this.controller.dirLightX.updateDisplay()
-    this.controller.dirLightY.updateDisplay()
-    this.controller.dirLightZ.updateDisplay()
+    this.controls.dirLightX.updateDisplay()
+    this.controls.dirLightY.updateDisplay()
+    this.controls.dirLightZ.updateDisplay()
   }
 
   /**
@@ -237,7 +193,7 @@ export class ScenePanel {
   dispose() {
     if (!this.gui) return
 
-    this.controller = {
+    this.controls = {
       dirLightX: null,
       dirLightY: null,
       dirLightZ: null
@@ -246,7 +202,7 @@ export class ScenePanel {
     this.gui.destroy()
     this.gui = null
 
-    this.sceneManager = null
+    this.controller = null
 
     this.isShow = false
   }

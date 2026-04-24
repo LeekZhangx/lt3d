@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { DebugGeometry } from './DebugGeometry.js'
-import { DebugHelper } from './DebugHelper.js'
+import { DebugGeometry } from './effect/DebugGeometry.js'
+import { DebugHelper } from './effect/DebugHelper.js'
 import { DebugMode } from './DebugMode.js'
 
 /**
@@ -168,10 +168,10 @@ export class DebugManager {
    * 设置 目标几何体 是否展示
    *
    * @param {boolean} visible 是否展示
-   * @param {THREE.Object3D} object
    */
-  setShowModel(visible, object) {
+  setShowModel(visible) {
     this.geoState.showModel = visible
+    const object = this._getModel()
     if (object) object.visible = visible
   }
 
@@ -227,10 +227,10 @@ export class DebugManager {
    * @param {boolean} visible 是否展示
    * @param {THREE.Object3D} object 目标对象
    */
-  setBorderHelper(visible, object) {
+  setBorderHelper(visible) {
     this.helperState.showBorder = visible
 
-    this.debugHelper.enableBorderHelper(visible, object)
+    this.debugHelper.enableBorderHelper(visible, this._getModel())
   }
 
   /**

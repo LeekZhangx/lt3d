@@ -1,4 +1,4 @@
-import { RectGridHelper } from '../helper/RectGridHelper.js'
+import { RectGridHelper } from '../../helper/RectGridHelper.js'
 import * as THREE from 'three'
 /**
  * 辅助器
