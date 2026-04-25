@@ -164,11 +164,49 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
                     "1": {
                         "pic": "leaves_spruce"
                     },
-
                     "2": {
                         "pic": "leaves_birch"
                     },
                     "3": {
+                        "pic": "leaves_jungle"
+                    },
+
+                    "4": {
+                        "pic": "leaves_oak"
+                    },
+                    "5": {
+                        "pic": "leaves_spruce"
+                    },
+                    "6": {
+                        "pic": "leaves_birch"
+                    },
+                    "7": {
+                        "pic": "leaves_jungle"
+                    },
+
+                    "8": {
+                        "pic": "leaves_oak"
+                    },
+                    "9": {
+                        "pic": "leaves_spruce"
+                    },
+                    "10": {
+                        "pic": "leaves_birch"
+                    },
+                    "11": {
+                        "pic": "leaves_jungle"
+                    },
+
+                    "12": {
+                        "pic": "leaves_oak"
+                    },
+                    "13": {
+                        "pic": "leaves_spruce"
+                    },
+                    "14": {
+                        "pic": "leaves_birch"
+                    },
+                    "15": {
                         "pic": "leaves_jungle"
                     }
                 }
@@ -809,7 +847,28 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
                     },
                     "1": {
                         "pic": "leaves_big_oak"
-                    }
+                    },
+                    
+                    "4": {
+                        "pic": "leaves_acacia"
+                    },
+                    "5": {
+                        "pic": "leaves_big_oak"
+                    },
+                    
+                    "8": {
+                        "pic": "leaves_acacia"
+                    },
+                    "9": {
+                        "pic": "leaves_big_oak"
+                    },
+                    
+                    "12": {
+                        "pic": "leaves_acacia"
+                    },
+                    "13": {
+                        "pic": "leaves_big_oak"
+                    },
                 }
             },
             "minecraft:log2": {
