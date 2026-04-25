@@ -14,7 +14,8 @@ export class MaterialResolver {
    * @property {boolean} [isWater]
    * @property {boolean} [isIce]
    * @property {boolean} [isGlass]
-   * @property {boolean} [isLeavesOrGrass]
+   * @property {boolean} [isLeaves]
+   * @property {boolean} [isGrass]
    */
 
   /**

@@ -91,7 +91,8 @@ export class BlockMaterialFactory {
         isWater: this._isWater(name),
         isIce: this._isIce(name),
         isGlass: this._isGlassBlock(name),
-        isLeavesOrGrass: this._isLeaves(name) || this._isGrass(name)
+        isLeaves: this._isLeaves(name),
+        isGrass: this._isGrass(name)
       }
 
       const type = MaterialResolver.resolve(matCtx, matFactory)

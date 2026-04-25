@@ -36,7 +36,7 @@ export class LeavesMaterialBuilder extends IMaterialBuilder{
       transparent: false, // 不进透明队列
       alphaTest: 0.1,      // 低于阈值直接 discard
       opacity: 0.8 * normalizedAlpha,
-      depthWrite: false
+      depthWrite: true
     })
   }
 }

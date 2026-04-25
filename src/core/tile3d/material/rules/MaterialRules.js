@@ -17,7 +17,11 @@ export const MaterialRules = [
     type: MaterialType.ICE
   },
   {
-    match: (ctx) => ctx.isLeavesOrGrass,
+    match: (ctx) => ctx.isLeaves,
     type: MaterialType.LEAVES
+  },
+    {
+    match: (ctx) => ctx.isGrass,
+    type: MaterialType.COMMON
   },
 ]
