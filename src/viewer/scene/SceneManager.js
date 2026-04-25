@@ -96,6 +96,12 @@ export class SceneManager {
     this.scene.add(ambient, direct)
 
     this.lights = { ambient, direct }
+
+    direct.shadow.bias = -0.0001
+    direct.shadow.normalBias = 0.02
+
+    // 阴影贴图分辨率
+    direct.shadow.mapSize.set(1024, 1024)
   }
 
   /**
@@ -132,9 +138,6 @@ export class SceneManager {
     light.shadow.camera.far = d * 4
 
     light.shadow.camera.updateProjectionMatrix()
-
-    // 阴影贴图分辨率
-    light.shadow.mapSize.set(1024, 1024)
 
   }
 

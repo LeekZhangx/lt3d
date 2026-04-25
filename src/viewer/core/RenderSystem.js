@@ -25,6 +25,8 @@ export class RenderSystem {
     this.renderer = new THREE.WebGLRenderer({ antialias: true })
     this.renderer.setSize(w, h)
     this.renderer.shadowMap.enabled = true
+    
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
     container.appendChild(this.renderer.domElement)
 
