@@ -1,20 +1,26 @@
 import * as THREE from 'three'
 
 /**
- * 材质缓存对象
+ * 纹理贴图管理对象
  *
  * 使用时需初始化注入 THREE.LoadingManager
+ * 
+ * 自带 路径--THREE.Texture 缓存
  */
-export class TextureCache {
+export class TextureManager {
 
   /**
    * 
    * @param {THREE.LoadingManager | null} manager 资源加载管理器，非必须
+   * @param {number} anisotropy 各向异性值
    */
-  constructor(manager) {
+  constructor(manager, anisotropy) {
 
     this.cache = new Map()
     this.loader = new THREE.TextureLoader(manager)
+
+    this.anisotropy = anisotropy ?? 2
+
     this.fallbackTexture = null
 
   }
@@ -29,8 +35,10 @@ export class TextureCache {
    */
   get(path, name) {
     
-    if (this.cache.has(path)) {
-      return this.cache.get(path)
+    const key = path ?? '__fallback__'
+
+    if (this.cache.has(key)) {
+      return this.cache.get(key)
     }
 
     const fallback = this._createFallbackTexture()
@@ -60,16 +68,23 @@ export class TextureCache {
         }
       )
 
-      this.cache.set(path, texture)
+      this.cache.set(key, texture)
     }else{
       texture.name = name
     }
 
+    
     texture.colorSpace = THREE.SRGBColorSpace
+
     texture.magFilter = THREE.NearestFilter
-    texture.minFilter = THREE.NearestFilter
+    texture.minFilter = THREE.LinearMipMapLinearFilter
+
     texture.wrapS = THREE.RepeatWrapping
     texture.wrapT = THREE.RepeatWrapping
+
+    texture.generateMipmaps = true
+
+    texture.anisotropy = this.anisotropy
 
     return texture
   }
@@ -111,10 +126,14 @@ export class TextureCache {
     const texture = new THREE.CanvasTexture(canvas)
 
     texture.colorSpace = THREE.SRGBColorSpace
+
     texture.magFilter = THREE.NearestFilter
-    texture.minFilter = THREE.NearestFilter
+    texture.minFilter = THREE.LinearMipmapLinearFilter
+
     texture.wrapS = THREE.RepeatWrapping
     texture.wrapT = THREE.RepeatWrapping
+
+    texture.anisotropy = this.anisotropy
 
     texture.needsUpdate = true
 
@@ -135,7 +154,7 @@ export class TextureCache {
   }
 
   /**
-   * 清空cache缓存，但不销毁整个 TextureCache
+   * 清空cache缓存，但不销毁整个 TextureManager
    */
   clear() {
     this.cache.forEach(tex => tex.dispose())
@@ -143,7 +162,7 @@ export class TextureCache {
   }
 
   /**
-   * 销毁 TextureCache
+   * 销毁 TextureManager
    */
   dispose() {
     this.clear()

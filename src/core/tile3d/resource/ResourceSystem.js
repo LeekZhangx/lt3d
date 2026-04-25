@@ -1,7 +1,7 @@
 import { LT_VERSION } from "../../version/LtVersion"
 import { BlockTextureResolver } from "../texture/BlockTextureResolver"
 import { BlockTextureResolverFactory } from "../texture/BlockTextureResolverFactory"
-import { TextureCache } from "../texture/TextureCache"
+import { TextureManager } from "../texture/TextureManager"
 
 /**
  * 资源系统
@@ -12,13 +12,36 @@ import { TextureCache } from "../texture/TextureCache"
  */
 export class ResourceSystem {
 
-  constructor(loadingManager) {
+  /**
+   * 
+   * @param {THREE.LoadingManager} loadingManager 
+   * @param {number} anisotropy 各向异性值
+   */
+  constructor(loadingManager, anisotropy) {
     this.loadingManager = loadingManager
 
-    this.textureCache = new TextureCache(loadingManager)
+    this.textureManager = new TextureManager(loadingManager, anisotropy)
 
     this.resolvers = new Map()
 
+  }
+
+  /**
+   * 设置生成的贴图 各向异性 值
+   * 
+   * @param {number} val 
+   */
+  setAnisotropy(val){
+    this.textureManager.anisotropy = val
+  }
+
+  /**
+   * 获取 各向异性 值
+   * 
+   * @returns {number}  
+   */
+  getAnisotropy(){
+    return this.textureManager.anisotropy
   }
 
   /**
@@ -50,9 +73,9 @@ export class ResourceSystem {
 
     const texPath = resolver.resolve(namespace)
 
-    // 没有找寻到对应的path，也将null传递给textureCache，让其使用默认材质
+    // 没有找寻到对应的path，也将null传递给textureManager，让其使用默认材质
 
-    return this.textureCache.get(texPath)
+    return this.textureManager.get(texPath)
   }
 
   /* ================= 扩展接口 ================= */
@@ -93,15 +116,15 @@ export class ResourceSystem {
       getTexture: (namespace) => {
         const texPath = resolver.resolve(namespace)
 
-        // 没有找寻到对应的path，也将null传递给textureCache，让其使用默认材质
+        // 没有找寻到对应的path，也将null传递给textureManager，让其使用默认材质
 
-        return this.textureCache.get(texPath)
+        return this.textureManager.get(texPath)
       }
     }
   }
 
   dispose() {
-    this.textureCache.dispose()
+    this.textureManager.dispose()
     this.resolvers.clear()
   }
 }

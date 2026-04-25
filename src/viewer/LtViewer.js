@@ -85,10 +85,12 @@ export class LtViewer {
     this.renderSystem = new RenderSystem(this.container, this.options)
     this.renderSystem.setCamera(this.cameraSystem.getCamera())
 
+    this.resourceSystem.setAnisotropy(this.renderSystem.renderer.capabilities.getMaxAnisotropy())
+
     // 2 Scene
     this.sceneManager = new SceneManager(
       this.renderSystem.scene, 
-      this.resourceSystem.textureCache
+      this.resourceSystem.textureManager
     )
     this.sceneManager.init()
 

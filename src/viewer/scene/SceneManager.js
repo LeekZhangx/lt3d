@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { TextureCache } from '../../core/tile3d/texture/TextureCache.js'
+import { TextureManager } from '../../core/tile3d/texture/TextureManager.js'
 
 /**
  * 场景管理器
@@ -11,14 +11,14 @@ export class SceneManager {
   /**
    * 
    * @param {THREE.Scene} scene 
-   * @param {TextureCache} textureCache 
+   * @param {TextureManager} textureManager 
    */
-  constructor(scene, textureCache) {
+  constructor(scene, textureManager) {
     this.scene = scene
     this.lights = {}
     this.ground = null
 
-    this.textureCache = textureCache
+    this.textureManager = textureManager
 
     //模型的空间信息获取方法
     this._getBox = null
@@ -143,7 +143,7 @@ export class SceneManager {
 
     let mat
     if (texturePath) {
-      const texture = this.textureCache.get(texturePath)
+      const texture = this.textureManager.get(texturePath)
       texture.needsUpdate = true
 
       mat = new THREE.MeshStandardMaterial({ map: texture })
@@ -204,7 +204,7 @@ export class SceneManager {
     }
 
     // 加载新贴图
-    const texture = this.textureCache.get(texturePath, 'ground')
+    const texture = this.textureManager.get(texturePath, 'ground')
     this.ground.material.map = texture
     this.ground.material.color.set(color)
     this.ground.material.map.repeat.set(repeat, repeat)
@@ -306,8 +306,8 @@ export class SceneManager {
 
     // 1. 清空内容
     this.clear()
-    //这里textureCache不dispose
-    this.textureCache = null
+    //这里textureManager不dispose
+    this.textureManager = null
 
     // 2. 清理引用
     this._getBox = null

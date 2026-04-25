@@ -13,7 +13,7 @@ const USE_CDN = false
  * 使用场景：
  * - txt → 3D 解析过程中，根据版本加载不同资源
  * - 材质解析（Material Resolver）
- * - 贴图加载（TextureLoader / TextureCache）
+ * - 贴图加载（TextureLoader / TextureManager）
  *
  * 使用示例：
  * ```js
