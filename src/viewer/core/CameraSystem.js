@@ -16,6 +16,10 @@ export class CameraSystem {
     const height = container.clientHeight
     this.aspect = width / height
 
+    /**
+     * 相机观察的目标点
+     * @type {THREE.Vector3}
+     */
     this.target = new THREE.Vector3()
 
     this.perspective = this._createPerspective()
@@ -180,7 +184,7 @@ export class CameraSystem {
     // =========================
     let radius = size.length() / 2
 
-    radius = radius * 4
+    radius = radius * 1.2
 
     // =========================
     // 3. 根据相机类型算 distance
