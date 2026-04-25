@@ -28,38 +28,42 @@ export class TextureCache {
    * @returns
    */
   get(path, name) {
-
+    
     if (this.cache.has(path)) {
       return this.cache.get(path)
     }
 
+    const fallback = this._createFallbackTexture()
+
+    let texture = new THREE.Texture()
+    texture.image = fallback.image
+    texture.needsUpdate = true
+    
     // 异步加载实际纹理
-    let texture = this.loader.load(
-      path,
-      (tex) => {
-        // onLoad - 加载成功，更新缓存和纹理
-        texture.image = tex.image
+    if(path){
+      texture.name = name
 
-        texture.needsUpdate = true
-      },
-      undefined, // onProgress
-      (err) => {
-        // onErr - 加载失败，保持使用fallback纹理
-        console.warn("Texture load failed, path:", path, err)
+      this.loader.load(
+        path,
+        (tex) => {
+          // onLoad - 加载成功，更新缓存和纹理
+          texture.image = tex.image
 
-        const errTexture = this._createFallbackTexture()
+          texture.needsUpdate = true
+        },
+        undefined, // onProgress
+        (err) => {
+          // onErr - 加载失败，保持使用fallback纹理
+          console.warn("Texture load failed, path:", path, err)
 
-        //只替换image 更换texture会让引用错误
-        texture.image = errTexture.image
+          texture.name = name + '_load_error'
+        }
+      )
 
-        texture.name = name + '_load_error'
-        texture.needsUpdate = true
-      }
-    )
-
-    this.cache.set(path, texture)
-
-    texture.name = name
+      this.cache.set(path, texture)
+    }else{
+      texture.name = name
+    }
 
     texture.colorSpace = THREE.SRGBColorSpace
     texture.magFilter = THREE.NearestFilter

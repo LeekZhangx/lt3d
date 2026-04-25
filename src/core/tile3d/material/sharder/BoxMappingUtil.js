@@ -1,7 +1,7 @@
 export class BoxMappingUtil {
 
   static apply(material, options = {}) {
-
+  
     if (material.userData.boxMapping) return
     material.userData.boxMapping = true
 
@@ -18,6 +18,7 @@ export class BoxMappingUtil {
       // ===== uniforms =====
       shader.uniforms.boxScale = { value: scale }
       shader.uniforms.boxUseFract = { value: useFract ? 1 : 0 }
+      shader.uniforms.boxMap = { value: material.map }
 
       // ===== vertex =====
       shader.vertexShader =
@@ -37,6 +38,7 @@ export class BoxMappingUtil {
       // ===== fragment =====
       shader.fragmentShader =
         `
+        uniform sampler2D boxMap;
         uniform float boxScale;
         uniform int boxUseFract;
 
@@ -45,55 +47,85 @@ export class BoxMappingUtil {
         ` + shader.fragmentShader
 
       // ===== 核心替换 =====
+      // shader.fragmentShader = shader.fragmentShader.replace(
+      //   '#include <map_fragment>',
+      //   `
+      //   #ifdef USE_MAP
+
+      //     vec3 p = vWorldPos * boxScale;
+
+      //     if (boxUseFract == 1) {
+      //       p = fract(p);
+      //     }
+
+      //     vec3 nx  = normalize(vWorldNormal);
+      //     vec3 an = abs(nx);
+
+      //     vec2 uv;
+      //     vec4 tex;
+
+      //     // ===== 6方向选择 =====
+      //     if (an.x >= an.y && an.x >= an.z) {
+
+      //       if (nx.x > 0.0) {
+      //         uv = vec2(-p.z, p.y); // +X
+      //       } else {
+      //         uv = vec2(p.z, p.y); // -X
+      //       }
+
+      //     } else if (an.y > an.z) {
+
+      //       if (nx.y > 0.0) {
+      //         uv = vec2(p.x, -p.z);  // +Y
+      //       } else {
+      //         uv = vec2(p.x, p.z);  // -Y
+      //       }
+
+      //     } else {
+
+      //       if (nx.z > 0.0) {
+      //         uv = vec2(p.x, p.y);  // +Z
+      //       } else {
+      //         uv = vec2(-p.x, p.y); // -Z
+      //       }
+
+      //     }
+
+      //     tex = texture2D(map, uv);
+
+      //     diffuseColor *= tex;
+
+      //   #endif
+      //   `
+      // )
+
       shader.fragmentShader = shader.fragmentShader.replace(
         '#include <map_fragment>',
         `
-        #ifdef USE_MAP
-
           vec3 p = vWorldPos * boxScale;
 
           if (boxUseFract == 1) {
             p = fract(p);
           }
 
-          vec3 nx  = normalize(vWorldNormal);
+          vec3 nx = normalize(vWorldNormal);
           vec3 an = abs(nx);
 
           vec2 uv;
-          vec4 tex;
 
-          // ===== 6方向选择 =====
           if (an.x >= an.y && an.x >= an.z) {
-
-            if (nx.x > 0.0) {
-              uv = vec2(-p.z, p.y); // +X
-            } else {
-              uv = vec2(p.z, p.y); // -X
-            }
-
-          } else if (an.y > an.z) {
-
-            if (nx.y > 0.0) {
-              uv = vec2(p.x, -p.z);  // +Y
-            } else {
-              uv = vec2(p.x, p.z);  // -Y
-            }
-
-          } else {
-
-            if (nx.z > 0.0) {
-              uv = vec2(p.x, p.y);  // +Z
-            } else {
-              uv = vec2(-p.x, p.y); // -Z
-            }
-
+            uv = nx.x > 0.0 ? vec2(-p.z, p.y) : vec2(p.z, p.y);
+          } 
+          else if (an.y > an.z) {
+            uv = nx.y > 0.0 ? vec2(p.x, -p.z) : vec2(p.x, p.z);
+          } 
+          else {
+            uv = nx.z > 0.0 ? vec2(p.x, p.y) : vec2(-p.x, p.y);
           }
 
-          tex = texture2D(map, uv);
+          vec4 texColor = texture2D(boxMap, uv);
 
-          diffuseColor *= tex;
-
-        #endif
+          diffuseColor *= texColor;
         `
       )
     }

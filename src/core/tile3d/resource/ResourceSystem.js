@@ -38,14 +38,19 @@ export class ResourceSystem {
 
   /* ================= 统一入口 ================= */
 
+  /**
+   * 
+   * @param {string} namespace "minecraft:stone:0" 
+   * @param {keyof typeof LT_VERSION} ltVersion 
+   * @returns 
+   */
+  getTexture(namespace, ltVersion) {
 
-  getTexture(namespace, version) {
-
-    const resolver = this.getResolver(version)
+    const resolver = this.getResolver(ltVersion)
 
     const texPath = resolver.resolve(namespace)
 
-    if (!texPath) return null
+    // 没有找寻到对应的path，也将null传递给textureCache，让其使用默认材质
 
     return this.textureCache.get(texPath)
   }
@@ -73,17 +78,12 @@ export class ResourceSystem {
    */
 
   /**
-   * @typedef {Object} CreateBuildContextParams
-   * @property {keyof typeof LT_VERSION} ltVersion lt 版本
-   */
-
-  /**
    * 创建 LtMeshBuilder 构建时使用的上下文对象
    * 
-   * @param {CreateBuildContextParams} params 携带lt版本参数
+   * @param {keyof typeof LT_VERSION} ltVersion lt 版本
    * @returns {BuildContext}
    */
-  createBuildContext({ ltVersion }) {
+  createBuildContext(ltVersion) {
 
     const resolver = this.getResolver(ltVersion)
 
@@ -92,7 +92,8 @@ export class ResourceSystem {
 
       getTexture: (namespace) => {
         const texPath = resolver.resolve(namespace)
-        if (!texPath) return null
+
+        // 没有找寻到对应的path，也将null传递给textureCache，让其使用默认材质
 
         return this.textureCache.get(texPath)
       }

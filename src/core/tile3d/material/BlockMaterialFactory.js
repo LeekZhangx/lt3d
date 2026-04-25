@@ -3,9 +3,7 @@ import { LtColor } from '../util/lt/LtColor.js'
 import { MaterialFactory } from './materials/MaterialFactory.js'
 import { FcbMaterialFactory } from './fcb/FcbMaterialFactory.js'
 import { MaterialResolver } from './materials/MaterialResolver.js'
-import { TextureCache } from '../texture/TextureCache.js'
 import { BoxMappingUtil } from './sharder/BoxMappingUtil.js'
-import { BlockTextureResolver } from '../texture/BlockTextureResolver.js'
 
 
 /**
@@ -36,7 +34,7 @@ export class BlockMaterialFactory {
      * 创建（或复用）tile 对应的材质
      * @param {tile} tile 存储的方块信息，包括 命名空间 和 叠加色
      * @param {object} ctx 提供 textureResolver
-     * @param {BlockTextureResolver} ctx.textureResolver textureResolver
+     * @param {(blockNamespace:string)=> THREE.Texture} ctx.getTexture 获取纹理贴图的函数
      * @returns {THREE.Material[]} tile对应的材质数组
      */
     static createMaterial(tile, ctx) {
@@ -61,7 +59,7 @@ export class BlockMaterialFactory {
      * 构建材质
      * @param {object} tile
      * @param {object} ctx 提供 textureResolver
-     * @param {BlockTextureResolver} ctx.textureResolver textureResolver
+     * @param {(blockNamespace:string)=> THREE.Texture} ctx.getTexture 获取纹理贴图的函数
      * @returns {THREE.Material[]}
      */
     static _buildMaterial(tile, ctx) {

@@ -25,18 +25,26 @@ export class BlockTextureResolverV_1_12  extends BlockTextureResolver{
     let blockName = parts[1]
     const meta = parts[2] != null ? Number(parts[2]) : 0
 
-    if (!mod || !blockName) return null
+    if (!mod || !blockName){
+      console.warn("Mod name or block name not detected. Block namespace: " + namespace);
+      return null
+    }
 
     const modTable = this.mergedTable.mods[mod]
-    if (!modTable) return null
-
+    if (!modTable){
+      console.warn("Mod texture mapper not found. Block namespace: " + namespace);
+      return null
+    }
     if(mod === 'flatcoloredblocks'){
       blockName = blockName.replace(/\d+$/, '')//去除结尾的数字
     }
 
     const blockId = `${mod}:${blockName}`
     const blockInfo = modTable[blockId]
-    if (!blockInfo) return null
+    if (!blockInfo){
+      console.warn("Block name not in the texture mapper. Block namespace: " + namespace);
+      return null
+    }
 
     let picName = null
 
@@ -46,7 +54,10 @@ export class BlockTextureResolverV_1_12  extends BlockTextureResolver{
       picName = blockInfo.pic
     }
 
-    if (!picName || picName.length === 0) return null
+    if (!picName || picName.length === 0){
+      console.warn("Block texture not found. Block namespace: " + namespace);
+      return null
+    }
 
     return this.basePath + "/" + mod + "/blocks/" + picName + '.png'
   }

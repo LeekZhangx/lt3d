@@ -37,7 +37,7 @@ export class LtMeshBuilder {
    * @param {string} objName
    * @returns {THREE.MeshGroup}
    */
-  build(ltObj, objName, ctx) {
+  build(ltObj, objName) {
     this._id = 0
 
     //将不同版本的ltobj转换为中间体
@@ -48,6 +48,8 @@ export class LtMeshBuilder {
     rootGroup.name = objName
 
     const grid = ltIR.grid ?? 16
+
+    const ctx = this.resourceSystem.createBuildContext(ltObj.ltVersion)
 
     this._walkNode(ltIR, rootGroup, grid, ctx)
 
@@ -63,6 +65,7 @@ export class LtMeshBuilder {
    * @param {object} parent 根集合，存放不同的mesh
    * @param {number} grid
    * @param {object} ctx 
+   * @param {(blockNamespace:string)=> THREE.Texture} ctx.getTexture ResourceSystem 提供的加载贴图的函数
    */
   _walkNode(node, parent, grid, ctx) {
 

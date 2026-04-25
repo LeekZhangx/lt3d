@@ -141,12 +141,8 @@ export class LtViewer {
       this.requestRender()
     }
 
-    const ctx = this.resourceSystem.createBuildContext({
-      ltVersion: ltObj.ltVersion
-    })
-
     // 从 ltObj 构建 Three 模型
-    const ltModel3d = this.ltMeshBuilder.build(ltObj, name, ctx)
+    const ltModel3d = this.ltMeshBuilder.build(ltObj, name)
 
     this._loadModel(ltModel3d)
   }
