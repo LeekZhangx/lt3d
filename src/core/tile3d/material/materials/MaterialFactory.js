@@ -1,5 +1,6 @@
 import { MaterialType } from "../MaterialType.js"
 import { GlassMaterialBuilder } from "../builders/GlassMaterialBuilder.js"
+import { GrassMaterialBuilder } from "../builders/GrassMaterialBuilder.js"
 import { IceMaterialBuilder } from "../builders/IceMaterialBuilder.js"
 import { LeavesMaterialBuilder } from "../builders/LeavesMaterialBuilder.js"
 import { CommonMaterialBuilder } from "../builders/CommonMaterialBuilder.js"
@@ -19,6 +20,7 @@ export class MaterialFactory {
     [MaterialType.COMMON, new CommonMaterialBuilder()],
     [MaterialType.LEAVES, new LeavesMaterialBuilder()],
     [MaterialType.GLASS, new GlassMaterialBuilder()],
+    [MaterialType.GRASS, new GrassMaterialBuilder()],
     [MaterialType.WATER, new WaterMaterialBuilder()],
     [MaterialType.ICE, new IceMaterialBuilder()]
   ])

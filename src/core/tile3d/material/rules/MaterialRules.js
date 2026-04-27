@@ -22,6 +22,6 @@ export const MaterialRules = [
   },
     {
     match: (ctx) => ctx.isGrass,
-    type: MaterialType.COMMON
+    type: MaterialType.GRASS
   },
 ]

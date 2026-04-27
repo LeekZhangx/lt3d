@@ -36,9 +36,11 @@ export class MaterialResolver {
 
       return factory.DEFAULT_MATERIAL_TYPE
 
-    } else if (factory === MaterialFactory){
-
-      // 默认材质
+    } 
+    
+    // 默认材质
+    else if (factory === MaterialFactory){
+      
       for (const rule of MaterialRules) {
         if (rule.match(ctx)) return rule.type
       }
