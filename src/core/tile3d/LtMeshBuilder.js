@@ -65,7 +65,7 @@ export class LtMeshBuilder {
    * @param {object} parent 根集合，存放不同的mesh
    * @param {number} grid
    * @param {object} ctx 
-   * @param {(blockNamespace:string)=> THREE.Texture} ctx.getTexture ResourceSystem 提供的加载贴图的函数
+   * @param {(blockNamespace:string)=> Object} ctx.getTextureSet ResourceSystem 提供的加载贴图的函数
    */
   _walkNode(node, parent, grid, ctx) {
 

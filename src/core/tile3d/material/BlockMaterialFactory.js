@@ -4,6 +4,8 @@ import { MaterialFactory } from './materials/MaterialFactory.js'
 import { FcbMaterialFactory } from './fcb/FcbMaterialFactory.js'
 import { MaterialResolver } from './materials/MaterialResolver.js'
 import { BoxMappingUtil } from './sharder/BoxMappingUtil.js'
+import { BoxSixMappingUtil } from './sharder/BoxSixMappingUtil.js'
+import { TextureSet } from '../texture/texset/TextureSet.js'
 
 
 /**
@@ -34,7 +36,7 @@ export class BlockMaterialFactory {
      * 创建（或复用）tile 对应的材质
      * @param {tile} tile 存储的方块信息，包括 命名空间 和 叠加色
      * @param {object} ctx 提供 textureResolver
-     * @param {(blockNamespace:string)=> THREE.Texture} ctx.getTexture 获取纹理贴图的函数
+     * @param {(blockNamespace:string)=> Object} ctx.getTextureSet 获取纹理贴图的函数
      * @returns {THREE.Material[]} tile对应的材质数组
      */
     static createMaterial(tile, ctx) {
@@ -59,7 +61,7 @@ export class BlockMaterialFactory {
      * 构建材质
      * @param {object} tile
      * @param {object} ctx 提供 textureResolver
-     * @param {(blockNamespace:string)=> THREE.Texture} ctx.getTexture 获取纹理贴图的函数
+     * @param {(blockNamespace:string)=> TextureSet} ctx.getTextureSet 获取纹理贴图对象的函数，由对应版本的BlockTextureResolver提供
      * @returns {THREE.Material[]}
      */
     static _buildMaterial(tile, ctx) {
@@ -78,8 +80,7 @@ export class BlockMaterialFactory {
       //0-1
       const alpha = colorAplha?.a
 
-      // === 1. 先根据类型构建材质（此时不传 texture） ===
-      let texture = null
+      // === 1. 先根据类型构建材质 ===
 
       let baseMaterial
 
@@ -101,7 +102,7 @@ export class BlockMaterialFactory {
         nameStr: tile.block,
         namespace: blockInfo,
         extraColorInt: extraColorInt,
-        texture: texture,
+        texture: null,
         extraColor: extraColor,
         alpha: alpha
       }
@@ -110,15 +111,32 @@ export class BlockMaterialFactory {
 
       // === 2. 再异步加载贴图覆盖 ===
 
-      texture = ctx.getTexture(tile.block)
-      baseMaterial.map = texture
+      const texSet = ctx.getTextureSet(tile.block)
 
-      //注入sharder
-      BoxMappingUtil.apply(baseMaterial, {
-        scale: 1.0,      // 1单位 = 1贴图
-        useFract: true,  // MC风格重复
-        sharpness: 6.0   // 更硬边（接近cube）
-      })
+      if (texSet) {
+
+        // =========================
+        // 单纹理
+        // =========================
+        if (texSet.isSingle()) {
+
+          baseMaterial.map = texSet.map
+
+          BoxMappingUtil.apply(baseMaterial)
+
+        }
+
+        // =========================
+        // 多纹理
+        // =========================
+        else if (texSet.isMultiple()) {
+
+          BoxSixMappingUtil.apply(
+            baseMaterial, 
+            texSet
+        )
+        }
+      }
 
       baseMaterial.needsUpdate = true
 
