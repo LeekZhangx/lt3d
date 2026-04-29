@@ -11,7 +11,7 @@ export class BoxMappingUtil {
     } = options
 
     material.defines = material.defines || {}
-    material.defines.USE_MAP = ''
+    // material.defines.USE_MAP = ''
 
     material.onBeforeCompile = (shader) => {
 
