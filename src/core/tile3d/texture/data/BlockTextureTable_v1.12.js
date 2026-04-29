@@ -31,7 +31,11 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
                 }
             },
             "minecraft:grass": {
-                "pic": "grass_side"
+                "textures": {
+                    "bottom": "dirt",
+                    "top": "grass_top",
+                    "side": "grass_side",
+                }
             },
             "minecraft:dirt": {
                 "meta": {
@@ -107,52 +111,54 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
             "minecraft:log": {
                 "meta": {
                     "0": {
-                        "pic": "log_oak"
+                        "textures": {
+                            "end": "log_oak_top",
+                            "side": "log_oak"
+                        }
                     },
                     "1": {
-                        "pic": "log_spruce"
+                        "textures": {
+                            "end": "log_spruce_top",
+                            "side": "log_spruce"
+                        }
                     },
                     "2": {
-                        "pic": "log_birch"
+                        "textures": {
+                            "end": "log_birch_top",
+                            "side": "log_birch"
+                        }
                     },
                     "3": {
-                        "pic": "log_jungle"
+                        "textures": {
+                            "end": "log_jungle_top",
+                            "side": "log_jungle"
+                        }
                     },
-                    "4": {
-                        "pic": "log_oak"
-                    },
-                    "5": {
-                        "pic": "log_spruce"
-                    },
-                    "6": {
-                        "pic": "log_birch"
-                    },
-                    "7": {
-                        "pic": "log_jungle"
-                    },
-                    "8": {
-                        "pic": "log_oak"
-                    },
-                    "9": {
-                        "pic": "log_spruce"
-                    },
-                    "10": {
-                        "pic": "log_birch"
-                    },
-                    "11": {
-                        "pic": "log_jungle"
-                    },
+
+                    // axis = x
+                    "4": { "ref": "0", "axis": "x" },
+                    "5": { "ref": "1", "axis": "x" },
+                    "6": { "ref": "2", "axis": "x" },
+                    "7": { "ref": "3", "axis": "x" },
+
+                    // axis = z
+                    "8": { "ref": "0", "axis": "z" },
+                    "9": { "ref": "1", "axis": "z" },
+                    "10": { "ref": "2", "axis": "z" },
+                    "11": { "ref": "3", "axis": "z" },
+
+                    // bark
                     "12": {
-                        "pic": "log_oak"
+                        "textures": { "all": "log_oak" }
                     },
                     "13": {
-                        "pic": "log_spruce"
+                        "textures": { "all": "log_spruce" }
                     },
                     "14": {
-                        "pic": "log_birch"
+                        "textures": { "all": "log_birch" }
                     },
                     "15": {
-                        "pic": "log_jungle"
+                        "textures": { "all": "log_jungle" }
                     }
                 }
             },
