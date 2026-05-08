@@ -242,13 +242,25 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
             "minecraft:sandstone": {
                 "meta": {
                     "0": {
-                        "pic": "sandstone_normal"
+                        "textures": {
+                            "bottom": "sandstone_bottom",
+                            "top": "sandstone_top",
+                            "side": "sandstone_normal"
+                        }
                     },
                     "1": {
-                        "pic": "sandstone_carved"
+                        "textures": {
+                            "bottom": "sandstone_bottom",
+                            "top": "sandstone_top",
+                            "side": "sandstone_carved"
+                        }
                     },
                     "2": {
-                        "pic": "sandstone_smooth"
+                        "textures": {
+                            "bottom": "sandstone_bottom",
+                            "top": "sandstone_top",
+                            "side": "sandstone_smooth"
+                        }
                     }
                 }
             },
@@ -368,7 +380,10 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
                 "pic": "tnt_side"
             },
             "minecraft:bookshelf": {
-                "pic": "bookshelf"
+                "textures": {
+                    "end": "planks_oak",
+                    "side": "bookshelf"
+                }
             },
             "minecraft:mossy_cobblestone": {
                 "pic": "cobblestone_mossy"
@@ -485,7 +500,19 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
 
             },
             "minecraft:pumpkin": {
-                "pic": "pumpkin_side"
+                "meta": {
+                    "0":{
+                        "parent": "orientable",
+                        "textures": {
+                            "top": "pumpkin_top",
+                            "front": "pumpkin_face_off",
+                            "side": "pumpkin_side"
+                        }
+                    },
+                    "1": { "ref": "0", "facing": "west", "y":270},
+                    "2": { "ref": "0", "facing": "north", "y":180},
+                    "3": { "ref": "0", "facing": "east", "y":90},
+                }
             },
             "minecraft:netherrack": {
                 "pic": "netherrack"
@@ -772,13 +799,36 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
             "minecraft:quartz_block": {
                 "meta": {
                     "0": {
-                        "pic": "quartz_block_side"
+                        "textures": {
+                            "all": "quartz_block_side"
+                        }
                     },
                     "1": {
-                        "pic": "quartz_block_chiseled"
+                        "textures": {
+                            "bottom": "quartz_block_bottom",
+                            "top": "quartz_block_top",
+                            "side": "quartz_block_side"
+                        }
                     },
                     "2": {
-                        "pic": "quartz_block_lines"
+                        "textures": {
+                            "end": "quartz_block_lines_top",
+                            "side": "quartz_block_lines"
+                        }
+                    },
+
+                    // pillar x
+                    "3": { "ref": "2", "axis": "x" },
+
+                    // pillar z
+                    "4": { "ref": "2", "axis": "z" },
+
+                    "5": {
+                        "textures": {
+                            "top": "quartz_block_chiseled_top",
+                            "bottom": "quartz_block_chiseled_top",
+                            "side": "quartz_block_chiseled"
+                        }
                     }
                 }
             },
@@ -880,16 +930,32 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
             "minecraft:log2": {
                 "meta": {
                     "0": {
-                        "pic": "log_acacia"
+                        "textures": {
+                            "end": "log_acacia_top",
+                            "side": "log_acacia"
+                        }
                     },
                     "1": {
-                        "pic": "log_big_oak"
+                        "textures": {
+                            "end": "log_dark_oak_top",
+                            "side": "log_dark_oak"
+                        }
                     },
+
+                    // axis = x
+                    "4": { "ref": "0", "axis": "x" },
+                    "5": { "ref": "1", "axis": "x" },
+
+                    // axis = z
+                    "8": { "ref": "0", "axis": "z" },
+                    "9": { "ref": "1", "axis": "z" },
+
+                    // bark
                     "12": {
-                        "pic": "log_acacia"
+                        "textures": { "all": "log_acacia" }
                     },
                     "13": {
-                        "pic": "log_big_oak"
+                        "textures": { "all": "log_dark_oak" }
                     }
                 }
             },
@@ -922,7 +988,17 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
                 "pic": "sea_lantern"
             },
             "minecraft:hay_block": {
-                "pic": "hay_block_side"
+                "meta": {
+                    "0": {
+                        "textures": {
+                            "end": "hay_block_top",
+                            "side": "hay_block_side"
+                        }
+                    },
+
+                    "4": { "ref": "0", "axis": "x" },
+                    "8": { "ref": "0", "axis": "z" }
+                }
             },
             "minecraft:carpet": {
 
@@ -951,13 +1027,25 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
             "minecraft:red_sandstone": {
                 "meta": {
                     "0": {
-                        "pic": "red_sandstone_normal"
+                        "textures": {
+                            "bottom": "red_sandstone_bottom",
+                            "top": "red_sandstone_top",
+                            "side": "red_sandstone_normal"
+                        }
                     },
                     "1": {
-                        "pic": "red_sandstone_carved"
+                        "textures": {
+                            "bottom": "red_sandstone_bottom",
+                            "top": "red_sandstone_top",
+                            "side": "red_sandstone_carved"
+                        }
                     },
                     "2": {
-                        "pic": "red_sandstone_smooth"
+                        "textures": {
+                            "bottom": "red_sandstone_bottom",
+                            "top": "red_sandstone_top",
+                            "side": "red_sandstone_smooth"
+                        }
                     }
                 }
             },
@@ -1025,10 +1113,22 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
 
             },
             "minecraft:purpur_block": {
-
+                "textures": {
+                    "all": "purpur_block"
+                }
             },
             "minecraft:purpur_pillar": {
+                "meta": {
+                    "0": {
+                    "textures": {
+                        "end": "purpur_pillar_top",
+                        "side": "purpur_pillar"
+                    }
+                    },
 
+                    "4": { "ref": "0", "axis": "x" },
+                    "8": { "ref": "0", "axis": "z" }
+                }
             },
             "minecraft:purpur_stairs": {
 
@@ -1066,11 +1166,21 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
             "minecraft:nether_wart_block": {
                 "pic": "nether_wart_block"
             },
-            "minecraft:red_nether_bricks": {
+            "minecraft:red_nether_brick": {
                 "pic": "red_nether_brick"
             },
             "minecraft:bone_block": {
-                "pic": "bone_block_side"
+                "meta": {
+                    "0": {
+                        "textures": {
+                            "end": "bone_block_top",
+                            "side": "bone_block_side"
+                        }
+                    },
+
+                    "4": { "ref": "0", "axis": "x" },
+                    "8": { "ref": "0", "axis": "z" }
+                }
             },
             "minecraft:structure_void": {
 
@@ -1127,52 +1237,212 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
 
             },
             "minecraft:white_glazed_terracotta": {
-                "pic": "glazed_terracotta_white"
+                "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_white"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:orange_glazed_terracotta": {
-                "pic": "glazed_terracotta_orange"
+                "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_orange"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:magenta_glazed_terracotta": {
-                "pic": "glazed_terracotta_magenta"
+                "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_magenta"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:light_blue_glazed_terracotta": {
-                "pic": "glazed_terracotta_light_blue"
+                "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_light_blue"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:yellow_glazed_terracotta": {
-                "pic": "glazed_terracotta_yellow"
+                "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_yellow"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:lime_glazed_terracotta": {
-                "pic": "glazed_terracotta_lime"
+                "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_lime"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:pink_glazed_terracotta": {
-                "pic": "glazed_terracotta_pink"
+                "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_pink"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:gray_glazed_terracotta": {
-                "pic": "glazed_terracotta_gray"
+                "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_gray"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:silver_glazed_terracotta": {
-                "pic": "glazed_terracotta_silver"
+                "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_silver"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:cyan_glazed_terracotta": {
-                "pic": "glazed_terracotta_cyan"
+                "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_cyan"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:purple_glazed_terracotta": {
-                "pic": "glazed_terracotta_purple"
+                "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_purple"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:blue_glazed_terracotta": {
-                "pic": "glazed_terracotta_blue"
+                "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_blue"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:brown_glazed_terracotta": {
-                "pic": "glazed_terracotta_brown"
+                  "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_brown"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:green_glazed_terracotta": {
-                "pic": "glazed_terracotta_green"
+                "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_green"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:red_glazed_terracotta": {
-                "pic": "glazed_terracotta_red"
+                "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_red"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:black_glazed_terracotta": {
-                "pic": "glazed_terracotta_black"
+                "meta":{
+                    "0":{
+                        "type": "glazed_terracotta",
+                        "textures": {
+                            "all":"glazed_terracotta_black"
+                        }
+                    },
+                    "1":{"ref":"0", "y":270},
+                    "2":{"ref":"0", "y":180},
+                    "3":{"ref":"0", "y":90},
+                }
             },
             "minecraft:concrete": {
                 "meta": {
