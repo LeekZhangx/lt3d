@@ -3,6 +3,7 @@ import { BlockTextureInfoResolver } from "./BlockTextureInfoResolver.js"
 import { BlockTextureInfoResolverV_1_12 } from "./BlockTextureInfoResolverV_1_12.js"
 import { BlockTextureInfoResolverV_1_21 } from "./BlockTextureInfoResolverV_1_21.js"
 import { BLOCK_TEXTURE_TABLE_1_12 } from "../../data/BlockTextureTable_v1.12.js"
+import { BLOCK_TYPE_TABLE_1_12 } from "../../data/BlockTypeTable_v1.12.js"
 
 export class BlockTextureInfoResolverFactory {
 

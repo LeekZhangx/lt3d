@@ -6,6 +6,8 @@ import { TexturePathResolverFactory } from "../texture/resolver/path/TexturePath
 import { TextureSetBuilder } from "../texture/TextureSetBuilder.js"
 import { TextureManager } from "../texture/TextureManager.js"
 import { TextureSet } from "../texture/texset/TextureSet.js"
+import { BlockTypeResolver } from "../texture/resolver/type/BlockTypeResolver.js"
+import { BlockTypeResolverFactory } from "../texture/resolver/type/BlockTypeResolverFactory.js"
 
 /**
  * 资源系统
@@ -28,6 +30,7 @@ export class ResourceSystem {
 
     this.infoResolvers = new Map()
     this.pathResolvers = new Map()
+    this.blockTypeResolver = new Map()
     this.builder = null
 
   }
@@ -63,6 +66,21 @@ export class ResourceSystem {
       this.infoResolvers.set(version, resolver)
     }
     return this.infoResolvers.get(version)
+  }
+
+  /**
+   * 获取 BlockTypeResolver 对象
+   * 
+   * @param {keyof typeof LT_VERSION} version 
+   * 
+   * @returns {BlockTypeResolver}
+   */
+  getBlockTypeResolver(version) {
+    if (!this.blockTypeResolver.has(version)) {
+      const resolver = BlockTypeResolverFactory.create(version)
+      this.blockTypeResolver.set(version, resolver)
+    }
+    return this.blockTypeResolver.get(version)
   }
 
   /**
@@ -193,6 +211,7 @@ export class ResourceSystem {
   createBuildContext(ltVersion) {
 
     const infoResolver = this.getInfoResolver(ltVersion)
+    const blockTypeResolver = this.getBlockTypeResolver(ltVersion)
     const pathResolver = this.getPathResolver(ltVersion)
     const builder = this.getBuilder()
 
@@ -208,7 +227,8 @@ export class ResourceSystem {
 
         // 没有找寻到对应的path，也将null传递给textureManager，让其使用默认材质
         const info = infoResolver.resolve(namespace)
-        return builder.build(info, pathResolver)
+        
+        return builder.build(info, blockTypeResolver, pathResolver)
 
       }
     }

@@ -1,3 +1,4 @@
+import { TextureFaces } from "./TextureFaces.js";
 import { TextureSetType } from "./TextureSetType.js";
 
 /**
@@ -43,20 +44,10 @@ export class TextureSet {
     // === 贴图 ===
     this.map = null
 
-    this.mapPX = null
-    this.mapNX = null
-    this.mapPY = null
-    this.mapNY = null
-    this.mapPZ = null
-    this.mapNZ = null
+    // map: 贴图
+    // rot: 贴图旋转角度
+    this.faces = null
 
-    // === 每个面的旋转（度）===
-    this.rotPX = 0
-    this.rotNX = 0
-    this.rotPY = 0
-    this.rotNY = 0
-    this.rotPZ = 0
-    this.rotNZ = 0
   }
 
   /* ================= 基础 ================= */
@@ -95,26 +86,15 @@ export class TextureSet {
 
   /**
    * 设置为六面贴图
-   *
-   * @param {Object} faces
-   * @param {THREE.Texture} faces.px +X (East)
-   * @param {THREE.Texture} faces.nx -X (West)
-   * @param {THREE.Texture} faces.py +Y (Up)
-   * @param {THREE.Texture} faces.ny -Y (Down)
-   * @param {THREE.Texture} faces.pz +Z (South)
-   * @param {THREE.Texture} faces.nz -Z (North)
+   * 
+   * @param {TextureFaces} faces 
    *
    * @returns {this} 支持链式调用
    */
-  setMultiple({ px, nx, py, ny, pz, nz }) {
+  setMultiple(faces) {
     this.type = TextureSetType.MULTIPLE
 
-    this.mapPX = px
-    this.mapNX = nx
-    this.mapPY = py
-    this.mapNY = ny
-    this.mapPZ = pz
-    this.mapNZ = nz
+    this.faces = faces
 
     return this
   }
@@ -145,7 +125,7 @@ export class TextureSet {
 
     if (this.isSingle()) return this
 
-    // === Y轴旋转（最常见）===
+    // === Y轴旋转 ===
     if (y !== 0) {
       this._rotateY(y)
     }
@@ -155,20 +135,56 @@ export class TextureSet {
       this._rotateX(x)
     }
 
-    // === axis（log）===
-    if (axis === 'x') {
-      this._rotateZ(90)
-    } else if (axis === 'z') {
-      this._rotateX(90)
-    }
+    // === axis ===
+    this._applyAxis(axis)
 
     return this
   }
 
   /* ================= 内部旋转实现 ================= */
 
+  _applyAxis(axis) {
+
+
+    if (axis === 'y') return
+
+    const f = this.faces
+
+    if (axis === 'x') {
+
+      const py = f.py
+      const ny = f.ny
+
+      f.py = f.nx
+      f.ny = f.px
+
+      f.px = py
+      f.nx = ny
+
+      f.py.rotate(90)
+      f.ny.rotate(90)
+
+      f.pz.rotate(90)
+      f.nz.rotate(90)
+    }
+
+    else if (axis === 'z') {
+
+      const py = f.py
+      const ny = f.ny
+
+      f.py = f.nz
+      f.ny = f.pz
+      f.pz = py
+      f.nz = ny
+
+      f.px.rotate(90)
+      f.nx.rotate(90)
+    }
+  }
+
   /**
-   * 绕 Y 轴旋转（90°步进）
+   * 方块整体 绕 Y 轴旋转（90°步进）
    *
    * 影响：
    * - PX → PZ → NX → NZ
@@ -178,26 +194,27 @@ export class TextureSet {
    * @private
    */
   _rotateY(deg) {
+
     const times = ((deg % 360) + 360) % 360 / 90
 
     for (let i = 0; i < times; i++) {
-      // PX → PZ → NX → NZ
-      const tmp = this.mapPX
-      this.mapPX = this.mapPZ
-      this.mapPZ = this.mapNX
-      this.mapNX = this.mapNZ
-      this.mapNZ = tmp
 
-      // 旋转UV
-      this.rotPX += 90
-      this.rotNX += 90
-      this.rotPZ += 90
-      this.rotNZ += 90
+      const f = this.faces
+
+      const tmp = f.px.clone()
+
+      f.px = f.pz.clone()
+      f.pz = f.nx.clone()
+      f.nx = f.nz.clone()
+      f.nz = tmp
+
+      f.py.rotate(90)
+      f.ny.rotate(90)
     }
   }
 
   /**
-   * 绕 X 轴旋转（90°步进）
+   * 方块整体 绕 X 轴旋转（90°步进）
    *
    * 影响：
    * - PY → PZ → NY → NZ
@@ -209,22 +226,25 @@ export class TextureSet {
     const times = ((deg % 360) + 360) % 360 / 90
 
     for (let i = 0; i < times; i++) {
-      // PY → PZ → NY → NZ
-      const tmp = this.mapPY
-      this.mapPY = this.mapPZ
-      this.mapPZ = this.mapNY
-      this.mapNY = this.mapNZ
-      this.mapNZ = tmp
 
-      this.rotPY += 90
-      this.rotNY += 90
-      this.rotPZ += 90
-      this.rotNZ += 90
+      const f = this.faces
+
+      const tmp = f.py.clone()
+
+      f.py = f.pz.clone()
+      f.pz = f.ny.clone()
+      f.ny = f.nz.clone()
+      f.nz = tmp
+
+      f.py.rotate(90)
+      f.ny.rotate(90)
+      f.pz.rotate(90)
+      f.nz.rotate(90)
     }
   }
 
   /**
-   * 绕 Z 轴旋转（90°步进）
+   * 方块整体 绕 Z 轴旋转（90°步进）
    *
    * 影响：
    * - PX → PY → NX → NY
@@ -236,16 +256,20 @@ export class TextureSet {
     const times = ((deg % 360) + 360) % 360 / 90
 
     for (let i = 0; i < times; i++) {
-      const tmp = this.mapPX
-      this.mapPX = this.mapPY
-      this.mapPY = this.mapNX
-      this.mapNX = this.mapNY
-      this.mapNY = tmp
 
-      this.rotPX += 90
-      this.rotNX += 90
-      this.rotPY += 90
-      this.rotNY += 90
+      const f = this.faces
+
+      const tmp = f.px.clone()
+
+      f.px = f.py.clone()
+      f.py = f.nx.clone()
+      f.nx = f.ny.clone()
+      f.ny = tmp
+
+      f.px.rotate(90)
+      f.nx.rotate(90)
+      f.py.rotate(90)
+      f.ny.rotate(90)
     }
   }
 
@@ -277,18 +301,20 @@ export class TextureSet {
       return
     }
 
-    shader.uniforms.mapPX = { value: this.mapPX }
-    shader.uniforms.mapNX = { value: this.mapNX }
-    shader.uniforms.mapPY = { value: this.mapPY }
-    shader.uniforms.mapNY = { value: this.mapNY }
-    shader.uniforms.mapPZ = { value: this.mapPZ }
-    shader.uniforms.mapNZ = { value: this.mapNZ }
+    const f = this.faces
 
-    shader.uniforms.rotPX = { value: this.rotPX }
-    shader.uniforms.rotNX = { value: this.rotNX }
-    shader.uniforms.rotPY = { value: this.rotPY }
-    shader.uniforms.rotNY = { value: this.rotNY }
-    shader.uniforms.rotPZ = { value: this.rotPZ }
-    shader.uniforms.rotNZ = { value: this.rotNZ }
+    shader.uniforms.mapPX = { value: f.px.map }
+    shader.uniforms.mapNX = { value: f.nx.map }
+    shader.uniforms.mapPY = { value: f.py.map }
+    shader.uniforms.mapNY = { value: f.ny.map }
+    shader.uniforms.mapPZ = { value: f.pz.map }
+    shader.uniforms.mapNZ = { value: f.nz.map }
+
+    shader.uniforms.rotPX = { value: f.px.rot }
+    shader.uniforms.rotNX = { value: f.nx.rot }
+    shader.uniforms.rotPY = { value: f.py.rot }
+    shader.uniforms.rotNY = { value: f.ny.rot }
+    shader.uniforms.rotPZ = { value: f.pz.rot }
+    shader.uniforms.rotNZ = { value: f.nz.rot }
   }
 }

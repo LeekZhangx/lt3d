@@ -74,10 +74,10 @@ export class BlockTextureInfoResolver {
   }
 
   /**
-   * 解析 block namespace 对应的纹理路径
+   * 解析 block namespace 对应的纹理信息
    *
    * @param {string} namespace    如 "minecraft:stone:2" / "littletiles:ltcoloredblock"
-   * @returns {string|null} 完整的路径 basePath/blocks/stone.png
+   * @returns {string|null} block namespace 对应的纹理信息，从对应的 BlockTextureTable 获取
    */
   resolve(namespace) {
     throw new Error('resolve() must be implemented')

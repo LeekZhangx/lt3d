@@ -6,19 +6,18 @@ export class BlockTextureInfoResolverV_1_12  extends BlockTextureInfoResolver{
 
   /**
    * @param {object} table BLOCK_TEXTURE_TABLE（按版本加载）
-   * @param {string} basePath 纹理根路径
    */
   constructor(table) {
     super(LT_VERSION.V_1_12, table)
   }
 
   /**
-   * 解析 block namespace 对应的纹理路径
+   * 解析 block namespace 对应的纹理信息
    * 
    * - 解析结果依赖提供的 BlockTexutureTable
    *
    * @param {string} namespace    如 "minecraft:stone:2" / "littletiles:ltcoloredblock"
-   * @returns {object|null}
+   * @returns {object|null} 解析后的方块纹理贴图信息
    */
   resolve(namespace) {
     if (!namespace) return null
@@ -49,10 +48,11 @@ export class BlockTextureInfoResolverV_1_12  extends BlockTextureInfoResolver{
       return null
     }
 
-    // 单纹理
+    // 单纹理 储存的是不带后缀的文件名
     let picName = null
 
-    // 多纹理
+    // 多纹理 储存的是 面信息 和 不带后缀的文件名 的键值对， 
+    // 信息整体从BlockTextureTable获得
     let textures = null
 
     // 旋转信息
@@ -60,8 +60,11 @@ export class BlockTextureInfoResolverV_1_12  extends BlockTextureInfoResolver{
     let x = 0
     let y = 0
 
+    // 特殊纹理构造的信息
+    let blockType = null
+
     // =========================
-    // 新：先 resolve meta（支持 ref）
+    // 先处理 meta（支持 ref）
     // =========================
     let metaInfo = null
 
@@ -69,10 +72,11 @@ export class BlockTextureInfoResolverV_1_12  extends BlockTextureInfoResolver{
       metaInfo = this._resolveMeta(blockInfo, meta)
     }
 
-    //有meta
+    // 有meta
     if (metaInfo) {
       picName = metaInfo.pic
       textures = metaInfo.textures
+      blockType = metaInfo.type
 
       axis = metaInfo.axis
       x = metaInfo.x || 0
@@ -82,6 +86,7 @@ export class BlockTextureInfoResolverV_1_12  extends BlockTextureInfoResolver{
     else {
       picName = blockInfo.pic
       textures = blockInfo.textures
+      blockType = blockInfo.type
     }
 
 
@@ -89,7 +94,7 @@ export class BlockTextureInfoResolverV_1_12  extends BlockTextureInfoResolver{
     // 找寻到对应的单个纹理贴图 返回
     if(picName && picName.length > 0){
       return {
-        type: TextureSetType.SINGLE,
+        textureSetType: TextureSetType.SINGLE,
         mod: mod,
         textures: {"all": picName}
       }
@@ -98,15 +103,15 @@ export class BlockTextureInfoResolverV_1_12  extends BlockTextureInfoResolver{
     // 找寻到对应的多纹理贴图 返回
     if (textures){
       return {
-        type: TextureSetType.MULTIPLE,
+        textureSetType: TextureSetType.MULTIPLE,
+        blockType: blockType,
         mod: mod,
         textures: textures,
         axis,
         x,
         y
       }
-    }
-    console.log(textures);
+    } 
     
 
     console.warn("Block texture not found. Block namespace: " + namespace);
@@ -134,7 +139,7 @@ export class BlockTextureInfoResolverV_1_12  extends BlockTextureInfoResolver{
     while (current.ref) {
 
       if (visited.has(current.ref)) {
-        console.warn('Meta ref loop:', current.ref)
+        // console.warn('Meta ref loop:', current.ref)
         break
       }
 

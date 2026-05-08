@@ -15,7 +15,7 @@ export class BlockTextureInfoResolverV_1_21 extends BlockTextureInfoResolver{
 
 
   /**
-   * 解析 block namespace 对应的纹理路径
+   * 解析 block namespace 对应的纹理信息
    *
    * - mc 1.13后命名扁平化，数值型元数据被移除
    * - 1.21的 BlockTextureTable 只提供了多纹理方块的结构信息，没有查询到的 方块名称 会直接返回单贴图的结构
@@ -31,7 +31,7 @@ export class BlockTextureInfoResolverV_1_21 extends BlockTextureInfoResolver{
    *  - 不携带元数据的方块命名
    *  - 不携带属性值 如 minecraft:magenta_glazed_terracotta[facing=south]
    *
-   * @returns {object|null}
+   * @returns {object|null} 解析后的方块纹理贴图信息
    */
   resolve(namespace) {
     if (!namespace) return null
@@ -47,7 +47,7 @@ export class BlockTextureInfoResolverV_1_21 extends BlockTextureInfoResolver{
     }
 
     const singleTexBlock = {
-        type: TextureSetType.SINGLE,
+        textureSetType: TextureSetType.SINGLE,
         mod: mod,
         textures: {"all": blockName}
       }
@@ -70,7 +70,7 @@ export class BlockTextureInfoResolverV_1_21 extends BlockTextureInfoResolver{
     }
 
     return {
-        type: TextureSetType.MULTIPLE,
+        textureSetType: TextureSetType.MULTIPLE,
         mod: mod,
         textures: blockInfo.textures,
         axis: blockInfo.axis,

@@ -1,4 +1,7 @@
 import { TexturePathResolver } from "./resolver/path/TexturePathResolver.js"
+import { BlockTypeResolver } from "./resolver/type/BlockTypeResolver.js"
+import { TextureFace } from "./texset/TextureFace.js"
+import { TextureFaces } from "./texset/TextureFaces.js"
 import { TextureSet } from "./texset/TextureSet.js"
 import { TextureSetType } from "./texset/TextureSetType"
 
@@ -26,14 +29,16 @@ export class TextureSetBuilder {
    * 构建纹理集合
    *
    * @param {Object} info BlockTextureInfoResolver 输出的包含贴图信息的对象
+   * @param {BlockTypeResolver} blockTypeResolver 对应版本的 BlockTypeResolver
    * @param {TexturePathResolver} pathResolver 对应版本的 TexturePathResolver
    * @returns {TextureSet} 实例对象
    */
-  build(info, pathResolver) {
+  build(info, blockTypeResolver, pathResolver) {
 
     if (!info) return null
     
-    const { type, textures, mod, axis, x, y  } = info
+    //这里的type是贴图类型，不是方块类型
+    const { textureSetType, textures, mod, axis, x, y  } = info
 
     const texSet = new TextureSet()
 
@@ -93,7 +98,7 @@ export class TextureSetBuilder {
     // =========================
     // 单贴图
     // =========================
-    if (type === TextureSetType.SINGLE) {
+    if (textureSetType === TextureSetType.SINGLE) {
 
       const tex = getTex(resolveRef('all'))
 
@@ -103,18 +108,52 @@ export class TextureSetBuilder {
     // =========================
     // 多贴图（六面）
     // =========================
-    if (type === TextureSetType.MULTIPLE) {
+    if (textureSetType === TextureSetType.MULTIPLE) {
 
-      texSet.setMultiple({
-        px: pick('east', 'side', 'all'),
-        nx: pick('west', 'side', 'all'),
+      let rotates = {
+        "up":   0,
+        "down": 0,
+        "north":  0,
+        "south": 0,
+        "west":  0,
+        "east": 0,
+      }
 
-        pz: pick('south', 'side', 'all'),
-        nz: pick('north', 'side', 'all'),
+      if(info.blockType){
+        rotates = blockTypeResolver.resolve(info.blockType)   
+      }
 
-        py: pick('up', 'top', 'end', 'all'),
-        ny: pick('down', 'bottom', 'end', 'all')
+      const faces = new TextureFaces({
+        px: new TextureFace(
+          pick('east', 'side', 'all'), 
+          rotates.east
+        ),
+        nx: new TextureFace(
+          pick('west', 'side', 'all'), 
+          rotates.west
+        ),
+
+        pz: new TextureFace(
+          pick('south', 'front', 'side', 'all'), 
+          rotates.south
+        ),
+        nz: new TextureFace(
+          pick('north', 'side', 'all'), 
+          rotates.north
+        ),
+
+        py: new TextureFace(
+          pick('up', 'top', 'end', 'all'), 
+          rotates.up
+        ),
+        ny: new TextureFace(
+          pick('down', 'bottom', 'end', 'top', 'all'), 
+          rotates.down
+        )
+
       })
+
+      texSet.setMultiple(faces)
       
       texSet.applyBlockRotation({ axis, x, y })
 
