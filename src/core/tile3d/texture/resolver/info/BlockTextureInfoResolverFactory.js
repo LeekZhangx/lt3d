@@ -3,8 +3,13 @@ import { BlockTextureInfoResolver } from "./BlockTextureInfoResolver.js"
 import { BlockTextureInfoResolverV_1_12 } from "./BlockTextureInfoResolverV_1_12.js"
 import { BlockTextureInfoResolverV_1_21 } from "./BlockTextureInfoResolverV_1_21.js"
 import { BLOCK_TEXTURE_TABLE_1_12 } from "../../data/BlockTextureTable_v1.12.js"
-import { BLOCK_TYPE_TABLE_1_12 } from "../../data/BlockTypeTable_v1.12.js"
 
+/**
+ *  方块纹理贴图信息解析器工厂
+ * 
+ * - 根据不同的版本返回对应的 BlockTextureInfoResolver
+ * 
+ */
 export class BlockTextureInfoResolverFactory {
 
   /**

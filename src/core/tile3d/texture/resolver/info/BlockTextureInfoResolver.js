@@ -1,8 +1,16 @@
 import { LT_VERSION } from "../../../../version/LtVersion.js"
 
+/**
+ * BlockTextureInfoResolver 抽象类
+ * 
+ * 方块纹理贴图信息解析器
+ * 
+ * - 根据方块的名称，依据提供的 BLOCK_TEXTURE_TABLE 返回对应贴图结构
+ */
 export class BlockTextureInfoResolver {
 
   /**
+   * 
    * @param {keyof typeof LT_VERSION} ltVersion lt版本
    * @param {object[]} tables BLOCK_TEXTURE_TABLE（按版本加载）
    */
@@ -76,7 +84,8 @@ export class BlockTextureInfoResolver {
   /**
    * 解析 block namespace 对应的纹理信息
    *
-   * @param {string} namespace    如 "minecraft:stone:2" / "littletiles:ltcoloredblock"
+   * @abstract
+   * @param {string} namespace 方块命名空间 如 "minecraft:stone:2" / "littletiles:ltcoloredblock"，取决于提供的数据
    * @returns {string|null} block namespace 对应的纹理信息，从对应的 BlockTextureTable 获取
    */
   resolve(namespace) {

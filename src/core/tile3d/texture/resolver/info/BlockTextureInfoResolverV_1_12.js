@@ -2,6 +2,13 @@ import { LT_VERSION } from "../../../../version/LtVersion.js"
 import { TextureSetType } from "../../texset/TextureSetType.js"
 import { BlockTextureInfoResolver } from "./BlockTextureInfoResolver.js"
 
+/**
+ * BlockTextureInfoResolver 1.12 实现类
+ * 
+ * 方块纹理贴图信息解析器
+ * 
+ * - 根据方块的名称，依据提供的 BLOCK_TEXTURE_TABLE 返回对应贴图结构
+ */
 export class BlockTextureInfoResolverV_1_12  extends BlockTextureInfoResolver{
 
   /**

@@ -1,7 +1,9 @@
 import { TexturePathResolver } from './TexturePathResolver.js'
 
 /**
- * 纹理路径解析器 v.1.12 
+ * TexturePathResolver 1.12 实现类
+ * 
+ * 纹理路径解析器 
  *
  * 路径规则：
  *   <basePath>/<mod>/blocks/<name>.png

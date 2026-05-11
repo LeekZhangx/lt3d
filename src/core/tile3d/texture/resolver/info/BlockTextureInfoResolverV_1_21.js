@@ -1,8 +1,13 @@
 import { LT_VERSION } from "../../../../version/LtVersion.js"
 import { TextureSetType } from "../../texset/TextureSetType.js"
 import { BlockTextureInfoResolver } from "./BlockTextureInfoResolver.js"
+
 /**
- * 该版本方块命名方式扁平化，大部分可以直接匹配纹理
+ * BlockTextureInfoResolver 1.21 实现类
+ * 
+ * 方块纹理贴图信息解析器
+ * 
+ * - 该版本方块命名方式扁平化，大部分可以直接匹配纹理
  */
 export class BlockTextureInfoResolverV_1_21 extends BlockTextureInfoResolver{
 

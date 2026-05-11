@@ -5,7 +5,10 @@ import { TexturePathResolverV_1_12 } from "./TexturePathResolverV_1_12.js"
 import { TexturePathResolverV_1_21 } from "./TexturePathResolverV_1_21.js"
 
 /**
- * 根据版本创建对应的 TexturePathResolver
+ * 贴图路径解析器工厂
+ * 
+ * - 根据不同的版本返回对应的 TexturePathResolver
+ * 
  */
 export class TexturePathResolverFactory {
 
