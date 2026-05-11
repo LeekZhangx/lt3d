@@ -1,4 +1,7 @@
-export const BLOCK_TEXTURE_TABLE_1_12 = {
+/**
+ * minecraft
+ */
+const BLOCK_TEXTURE_TABLE_MC_1_12 = {
     "version": 1.12,
     "mods": {
         "minecraft": {
@@ -1557,7 +1560,16 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
             "minecraft:structure_block": {
 
             }
-        },
+        }
+    }
+}
+
+/**
+ * littletiles
+ */
+const BLOCK_TEXTURE_TABLE_LT_1_12 = {
+    "version": 1.12,
+    "mods": {
         "littletiles": {
             "littletiles:ltcoloredblock": {
                 "meta": {
@@ -1637,7 +1649,16 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
                     }
                 }
             }
-        },
+        }
+    }
+}
+
+/**
+ * flat colored blocks
+ */
+const BLOCK_TEXTURE_TABLE_FCB_1_12 = {
+    "version": 1.12,
+    "mods": {
         "flatcoloredblocks": {
             "flatcoloredblocks:flatcoloredblock": {
                 "pic": "flatcoloredblock_drywall"
@@ -1650,4 +1671,10 @@ export const BLOCK_TEXTURE_TABLE_1_12 = {
             }
         }
     }
+}
+
+export {
+    BLOCK_TEXTURE_TABLE_MC_1_12, 
+    BLOCK_TEXTURE_TABLE_LT_1_12, 
+    BLOCK_TEXTURE_TABLE_FCB_1_12
 }
