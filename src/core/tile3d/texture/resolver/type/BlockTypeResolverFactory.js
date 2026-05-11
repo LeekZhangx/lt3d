@@ -1,7 +1,15 @@
 import { LT_VERSION } from "../../../../version/LtVersion.js"
 import { BLOCK_TYPE_TABLE_1_12 } from "../../data/BlockTypeTable_v1.12.js"
 import { BlockTypeResolver } from "./BlockTypeResolver.js"
+import { BlockTypeResolverV_1_12 } from "./BlockTypeResolverV_1_12.js"
+import { BlockTypeResolverV_1_21 } from "./BlockTypeResolverV_1_21.js"
 
+/**
+ * 方块纹理布局信息解析工厂
+ * 
+ * - 根据不同的版本返回对应的 BlockTypeResolver
+ * 
+ */
 export class BlockTypeResolverFactory {
 
   /**
@@ -14,13 +22,13 @@ export class BlockTypeResolverFactory {
     switch (version) {
 
       case LT_VERSION.V_1_12:
-        return new BlockTypeResolver(
+        return new BlockTypeResolverV_1_12(
           version,
           BLOCK_TYPE_TABLE_1_12
         )
 
       case LT_VERSION.V_1_21:
-        return new BlockTypeResolver(
+        return new BlockTypeResolverV_1_21(
           version,
           BLOCK_TYPE_TABLE_1_12
         )
