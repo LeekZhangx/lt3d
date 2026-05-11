@@ -29,8 +29,11 @@ export class BlockTextureInfoResolver {
 
     /**
      * 合并后的索引表
+     * 
+     * resolve 的检索都在此表进行
      */
     this.mergedTable = {
+      version: ltVersion,
       mods: {}
     }
 
@@ -39,6 +42,8 @@ export class BlockTextureInfoResolver {
 
   /**
    * 注册新的 table（默认最高优先级）
+   * 
+   * 动态注册时候需注意格式 {"mods": { "extraMod1": { "blockName1":{...}, "blockName2":{...} }, "extraMod2": {...} }}
    */
   registerTable(table, { priority = 'high' } = {}) {
     if (!table || !table.mods) return
