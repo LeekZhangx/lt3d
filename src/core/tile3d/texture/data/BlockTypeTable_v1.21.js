@@ -3,10 +3,10 @@
  * 
  * 规范不同类别方块的贴图排布
  * 
- * 源自MC 1.12 assets\minecraft\models\block\ 
+ * 源自MC 1.21 assets\minecraft\models\block\ 
  * 有删改
  */
-export const BLOCK_TYPE_TABLE_1_12 = {
+export const BLOCK_TYPE_TABLE_1_21 = {
 
   "cube":{
     "parent": "block/block",
@@ -79,23 +79,16 @@ export const BLOCK_TYPE_TABLE_1_12 = {
     ]
   },
 
-  "oriendtable": {
-    "parent": "block/cube",
+  "orientable": { 
+    "parent": "block/orientable_with_bottom",
     "textures": {
-        "particle": "#front",
-        "down": "#top",
-        "up": "#top",
-        "north": "#front",
-        "east": "#side",
-        "south": "#side",
-        "west": "#side"
+        "bottom": "#top"
     }
   },
 
   "orientable_vertical":{
     "parent": "block/cube",
     "textures": {
-        "particle": "#side",
         "down": "#side",
         "up": "#front",
         "north": "#side",
@@ -105,7 +98,19 @@ export const BLOCK_TYPE_TABLE_1_12 = {
     }
   },
 
-  "glazed_terracotta": {
+  "orientable_with_bottom":{
+    "parent": "block/cube",
+    "textures": {
+        "down": "#bottom",
+        "up": "#top",
+        "north": "#front",
+        "east": "#side",
+        "south": "#side",
+        "west": "#side"
+    }
+  },
+
+  "template_glazed_terracotta": {
     "parent": "block/cube",
     "elements":[{
       "faces": {
