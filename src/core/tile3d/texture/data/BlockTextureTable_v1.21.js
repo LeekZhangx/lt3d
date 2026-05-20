@@ -530,6 +530,12 @@ const BLOCK_TEXTURE_TABLE_MC_1_21 = {
                     "pattern": "minecraft:block/purple_glazed_terracotta"
                 }
             },
+            "magenta_glazed_terracotta":{
+                "parent": "minecraft:block/template_glazed_terracotta",
+                "textures": {
+                    "pattern": "minecraft:block/magenta_glazed_terracotta"
+                }
+            },
             "pink_glazed_terracotta":{
                 "parent": "minecraft:block/template_glazed_terracotta",
                 "textures": {
