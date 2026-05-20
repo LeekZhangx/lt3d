@@ -1,3 +1,4 @@
+import { LT_VERSION } from '../../../../version/LtVersion.js'
 import { TexturePathResolver } from './TexturePathResolver.js'
 
 /**
@@ -9,6 +10,14 @@ import { TexturePathResolver } from './TexturePathResolver.js'
  *   <basePath>/<mod>/blocks/<name>.png
  */
 export class TexturePathResolverV_1_12 extends TexturePathResolver {
+
+  /**
+   * 
+   * @param {string} basePath 加载纹理资源的根路径
+   */
+  constructor(basePath) {
+    super(LT_VERSION.V_1_12, basePath)
+  }
 
   /**
    * @override

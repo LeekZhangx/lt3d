@@ -23,13 +23,11 @@ export class TexturePathResolverFactory {
 
       case LT_VERSION.V_1_12:
         return new TexturePathResolverV_1_12(
-          LT_VERSION.V_1_12,
           TEXTURE_PATH_CONFIG[LT_VERSION.V_1_12]
         )
 
       case LT_VERSION.V_1_21:
         return new TexturePathResolverV_1_21(
-          LT_VERSION.V_1_21,
           TEXTURE_PATH_CONFIG[LT_VERSION.V_1_21]
         )
 

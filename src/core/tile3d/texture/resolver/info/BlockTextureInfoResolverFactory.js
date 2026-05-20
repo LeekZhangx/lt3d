@@ -7,6 +7,9 @@ import {
   BLOCK_TEXTURE_TABLE_LT_1_12, 
   BLOCK_TEXTURE_TABLE_FCB_1_12 
 } from "../../data/BlockTextureTable_v1.12.js"
+import { 
+  BLOCK_TEXTURE_TABLE_MC_1_21, 
+} from "../../data/BlockTextureTable_v1.21.js"
 
 /**
  *  方块纹理贴图信息解析器工厂
@@ -36,7 +39,9 @@ export class BlockTextureInfoResolverFactory {
 
       case LT_VERSION.V_1_21:
         return new BlockTextureInfoResolverV_1_21(
-          []
+          [
+            BLOCK_TEXTURE_TABLE_MC_1_21
+          ]
         )
 
       default:

@@ -111,6 +111,10 @@ export class LtMeshBuilder {
       color: tileBoxGroup.color
     }
 
+    if(tileBoxGroup.blockStates){
+      tileInfo.blockStates = tileBoxGroup.blockStates
+    }
+
     const materials = BlockMaterialFactory.createMaterial(tileInfo, ctx)
 
     const geometries = []

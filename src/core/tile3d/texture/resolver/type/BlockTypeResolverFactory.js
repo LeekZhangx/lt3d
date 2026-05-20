@@ -1,5 +1,6 @@
 import { LT_VERSION } from "../../../../version/LtVersion.js"
 import { BLOCK_TYPE_TABLE_1_12 } from "../../data/BlockTypeTable_v1.12.js"
+import { BLOCK_TYPE_TABLE_1_21 } from "../../data/BlockTypeTable_v1.21.js"
 import { BlockTypeResolver } from "./BlockTypeResolver.js"
 import { BlockTypeResolverV_1_12 } from "./BlockTypeResolverV_1_12.js"
 import { BlockTypeResolverV_1_21 } from "./BlockTypeResolverV_1_21.js"
@@ -23,14 +24,12 @@ export class BlockTypeResolverFactory {
 
       case LT_VERSION.V_1_12:
         return new BlockTypeResolverV_1_12(
-          version,
           BLOCK_TYPE_TABLE_1_12
         )
 
       case LT_VERSION.V_1_21:
         return new BlockTypeResolverV_1_21(
-          version,
-          BLOCK_TYPE_TABLE_1_12
+          BLOCK_TYPE_TABLE_1_21
         )
 
       default:

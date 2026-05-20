@@ -3,11 +3,12 @@ import { BlockTextureInfoResolver } from "../texture/resolver/info/BlockTextureI
 import { BlockTextureInfoResolverFactory } from "../texture/resolver/info/BlockTextureInfoResolverFactory.js"
 import { TexturePathResolver } from "../texture/resolver/path/TexturePathResolver.js"
 import { TexturePathResolverFactory } from "../texture/resolver/path/TexturePathResolverFactory.js"
-import { TextureSetBuilder } from "../texture/TextureSetBuilder.js"
+import { TextureSetBuilder } from "../texture/builder/TextureSetBuilder.js"
 import { TextureManager } from "../texture/TextureManager.js"
 import { TextureSet } from "../texture/texset/TextureSet.js"
 import { BlockTypeResolver } from "../texture/resolver/type/BlockTypeResolver.js"
 import { BlockTypeResolverFactory } from "../texture/resolver/type/BlockTypeResolverFactory.js"
+import { TextureSetBuilderFactory } from "../texture/builder/TextureSetBuilderFactory.js"
 
 /**
  * 资源系统
@@ -31,7 +32,7 @@ export class ResourceSystem {
     this.infoResolvers = new Map()
     this.pathResolvers = new Map()
     this.blockTypeResolver = new Map()
-    this.builder = null
+    this.builders = new Map()
 
   }
 
@@ -101,19 +102,19 @@ export class ResourceSystem {
   /**
    * 获取 TextureSetBuilder
    * 
+   * @param {keyof typeof LT_VERSION} version 
+   * 
    * @returns {TextureSetBuilder} 将方块贴图名称转换为贴图路径的构建器
    */
-  getBuilder() {
-    if (!this.builder) {
+   getBuilder(version) {
+    if (!this.builders.has(version)) {
 
-      const builder = new TextureSetBuilder(
-        this.textureManager
-      )
+      const builder = TextureSetBuilderFactory.create(version, this.textureManager)
 
-      this.builder = builder
+      this.builders.set(version, builder)
     }
 
-    return this.builder
+    return this.builders.get(version)
   }
 
   /* ================= 统一入口 ================= */
@@ -213,7 +214,7 @@ export class ResourceSystem {
     const infoResolver = this.getInfoResolver(ltVersion)
     const blockTypeResolver = this.getBlockTypeResolver(ltVersion)
     const pathResolver = this.getPathResolver(ltVersion)
-    const builder = this.getBuilder()
+    const builder = this.getBuilder(ltVersion)
 
     return {
       ltVersion: ltVersion,
@@ -225,10 +226,7 @@ export class ResourceSystem {
        */
       getTextureSet: (namespace) => {
 
-        // 没有找寻到对应的path，也将null传递给textureManager，让其使用默认材质
-        const info = infoResolver.resolve(namespace)
-        
-        return builder.build(info, blockTypeResolver, pathResolver)
+        return builder.build(namespace, infoResolver, blockTypeResolver, pathResolver)
 
       }
     }

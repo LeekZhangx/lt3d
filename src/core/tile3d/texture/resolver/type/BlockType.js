@@ -39,4 +39,12 @@ export const BlockType = /** @type {const} */ Object.freeze({
    */
   GLAZED_TERRACOTTA: 'glazed_terracotta',
 
+
+  /**
+   * 1.21
+   * 彩釉陶瓦
+   * 面旋转映射
+   */
+  TEMPLATE_GLAZED_TERRACOTTA: 'template_glazed_terracotta'
+
 })

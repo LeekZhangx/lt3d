@@ -61,7 +61,7 @@ export class BlockMaterialFactory {
      * 构建材质
      * @param {object} tile
      * @param {object} ctx 提供 textureResolver
-     * @param {(blockNamespace:string)=> TextureSet} ctx.getTextureSet 获取纹理贴图对象的函数，由对应版本的BlockTextureResolver提供
+     * @param {(blockNamespace:string)=> TextureSet} ctx.getTextureSet 获取纹理贴图对象的函数，由对应版本的 TextureSetBuilder 提供
      * @returns {THREE.Material[]}
      */
     static _buildMaterial(tile, ctx) {

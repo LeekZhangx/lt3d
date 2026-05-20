@@ -4,7 +4,7 @@ import { BlockType } from "./BlockType.js"
 /**
  * BlockTypeResolver 抽象类
  * 
- * 特殊方块纹理布局信息解析
+ * 方块纹理布局信息解析器
  * 
  * - 将 方块贴图类型 blockType 转换成最终 纹理贴图布局 结构
  * - 补充 各个面的贴图旋转 rotation 信息

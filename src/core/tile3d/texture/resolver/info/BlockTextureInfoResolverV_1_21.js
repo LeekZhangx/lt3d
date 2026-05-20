@@ -1,4 +1,6 @@
+import { warn } from "three"
 import { LT_VERSION } from "../../../../version/LtVersion.js"
+import { BlockTextureInfo } from "../../entity/BlockTextureInfo.js"
 import { TextureSetType } from "../../texset/TextureSetType.js"
 import { BlockTextureInfoResolver } from "./BlockTextureInfoResolver.js"
 
@@ -40,10 +42,10 @@ export class BlockTextureInfoResolverV_1_21 extends BlockTextureInfoResolver{
    */
   resolve(namespace) {
     if (!namespace) return null
-
+    
     const parts = namespace.split(':')
     const mod = parts[0]
-    let blockName = parts[1]
+    const blockName = parts[1]
     //高版本中没有meta数据
 
     if (!mod || !blockName){
@@ -51,37 +53,32 @@ export class BlockTextureInfoResolverV_1_21 extends BlockTextureInfoResolver{
       return null
     }
 
-    const singleTexBlock = {
-        textureSetType: TextureSetType.SINGLE,
-        mod: mod,
-        textures: {"all": blockName}
-      }
+    const singleInfo = new BlockTextureInfo()
+
+    singleInfo.textureSetType = TextureSetType.SINGLE
+    singleInfo.mod = mod
+    singleInfo.textures = {"all": blockName}
 
     const modTable = this.mergedTable.mods[mod]
     if (!modTable){
       // mod 未找到 直接按照单纹理返回
-      return singleTexBlock
+      
+      return singleInfo
     }
 
-    if(mod === 'flatcoloredblocks'){
-      blockName = blockName.replace(/\d+$/, '')//去除结尾的数字
-    }
-
-    const blockId = `${mod}:${blockName}`
-    const blockInfo = modTable[blockId]
+    const blockInfo = modTable[blockName]
     if (!blockInfo){
       // 方块信息 未找到 直接按照单纹理返回
-      return singleTexBlock
+      return singleInfo
     }
 
-    return {
-        textureSetType: TextureSetType.MULTIPLE,
-        mod: mod,
-        textures: blockInfo.textures,
-        axis: blockInfo.axis,
-        x: blockInfo.x || 0,
-        y: blockInfo.y || 0,
-      }
+    const multInfo = new BlockTextureInfo()
+    multInfo.textureSetType = TextureSetType.MULTIPLE
+    multInfo.mod = mod
+    multInfo.parent = blockInfo.parent
+    multInfo.textures = blockInfo.textures
+
+    return multInfo
   }
 
 }

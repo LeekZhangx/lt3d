@@ -1,4 +1,5 @@
 import { LT_VERSION } from "../../../../version/LtVersion.js"
+import { BlockTextureInfo } from "../../entity/BlockTextureInfo.js"
 import { TextureSetType } from "../../texset/TextureSetType.js"
 import { BlockTextureInfoResolver } from "./BlockTextureInfoResolver.js"
 
@@ -24,7 +25,7 @@ export class BlockTextureInfoResolverV_1_12  extends BlockTextureInfoResolver{
    * - 解析结果依赖提供的 BlockTexutureTable
    *
    * @param {string} namespace    如 "minecraft:stone:2" / "littletiles:ltcoloredblock"
-   * @returns {object|null} 解析后的方块纹理贴图信息
+   * @returns {BlockTextureInfo} 解析后的方块纹理贴图信息
    */
   resolve(namespace) {
     if (!namespace) return null
@@ -71,7 +72,7 @@ export class BlockTextureInfoResolverV_1_12  extends BlockTextureInfoResolver{
     let blockType = null
 
     // =========================
-    // 先处理 meta（支持 ref）
+    // 先处理 meta 支持ref(n)引用，仅限该名称内
     // =========================
     let metaInfo = null
 
@@ -96,28 +97,30 @@ export class BlockTextureInfoResolverV_1_12  extends BlockTextureInfoResolver{
       blockType = blockInfo.type
     }
 
-
+    const info = new BlockTextureInfo()
 
     // 找寻到对应的单个纹理贴图 返回
     if(picName && picName.length > 0){
-      return {
-        textureSetType: TextureSetType.SINGLE,
-        mod: mod,
-        textures: {"all": picName}
-      }
+
+      info.textureSetType = TextureSetType.SINGLE
+      info.mod = mod
+      info.textures = {"all": picName}
+
+      return info
     }
 
     // 找寻到对应的多纹理贴图 返回
     if (textures){
-      return {
-        textureSetType: TextureSetType.MULTIPLE,
-        blockType: blockType,
-        mod: mod,
-        textures: textures,
-        axis,
-        x,
-        y
-      }
+
+      info.textureSetType = TextureSetType.MULTIPLE
+      info.mod = mod
+      info.textures = textures
+      info.blockType = blockType
+      info.axis = axis
+      info.x = x
+      info.y = y
+
+      return info
     } 
     
 

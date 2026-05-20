@@ -65,34 +65,31 @@ export class LtAdapterV_1_21 {
       if (!tileGroup || typeof tileGroup !== 'object') continue
 
       //1.13后，方块后可能会跟随[facing=north]这样的 方块状态 blockStates
-      //需要分离开
-      const str = tileGroup.tile
+      //这里不分开，让后续模块处理
 
-      let block = null, blockStates = null
+      // const lastOpen = str.lastIndexOf('[')
+      // const lastClose = str.lastIndexOf(']')
 
-      const lastOpen = str.lastIndexOf('[')
-      const lastClose = str.lastIndexOf(']')
+      // if (lastOpen === -1 || lastClose === -1 || lastClose < lastOpen) {
 
-      if (lastOpen === -1 || lastClose === -1 || lastClose < lastOpen) {
+      //   block = str
 
-        block = str
+      // }else{
 
-      }else{
+      //   block =  str.slice(0, lastOpen),
+      //   blockStates =  str.slice(lastOpen + 1, lastClose)
 
-        block =  str.slice(0, lastOpen),
-        blockStates =  str.slice(lastOpen + 1, lastClose)
-
-      }
+      // }
 
       const res = {
-        block: block,
+        block: tileGroup.tile,
         color: tileGroup.color,
         boxes: this._parseBoxes(tileGroup.boxes)
       }
 
-      if(blockStates){
-        res.blockStates = blockStates
-      }
+      // if(blockStates){
+      //   res.blockStates = blockStates
+      // }
 
       result.push(res)
     }

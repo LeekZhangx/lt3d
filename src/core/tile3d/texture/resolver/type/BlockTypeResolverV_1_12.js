@@ -5,7 +5,7 @@ import { BlockTypeResolver } from "./BlockTypeResolver.js"
 /**
  * BlockTypeResolver 1.12 实现类
  * 
- * 特殊方块纹理布局信息解析
+ * 方块纹理布局信息解析器
  * 
  * - 将 方块贴图类型 blockType 转换成最终 纹理贴图布局 结构
  * - 补充 各个面的贴图旋转 rotation 信息
@@ -14,11 +14,10 @@ export class BlockTypeResolverV_1_12 extends BlockTypeResolver{
 
   /**
    * 
-   * @param {LT_VERSION} ltVersion 
    * @param {object} blockTypeTable BlockTypeTable 按版本注入
    */
-  constructor(ltVersion, blockTypeTable) {
-    super(ltVersion, blockTypeTable)
+  constructor(blockTypeTable) {
+    super(LT_VERSION.V_1_12, blockTypeTable)
   }
 
   /**

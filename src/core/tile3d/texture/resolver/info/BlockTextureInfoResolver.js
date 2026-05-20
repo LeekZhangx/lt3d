@@ -1,4 +1,5 @@
 import { LT_VERSION } from "../../../../version/LtVersion.js"
+import { BlockTextureInfo } from "../../entity/BlockTextureInfo.js"
 
 /**
  * BlockTextureInfoResolver 抽象类
@@ -91,7 +92,7 @@ export class BlockTextureInfoResolver {
    *
    * @abstract
    * @param {string} namespace 方块命名空间 如 "minecraft:stone:2" / "littletiles:ltcoloredblock"，取决于提供的数据
-   * @returns {string|null} block namespace 对应的纹理信息，从对应的 BlockTextureTable 获取
+   * @returns {BlockTextureInfo} 方块纹理信息，从对应的 BlockTextureTable 获取
    */
   resolve(namespace) {
     throw new Error('resolve() must be implemented')

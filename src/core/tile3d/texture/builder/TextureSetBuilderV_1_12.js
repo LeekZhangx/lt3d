@@ -1,12 +1,17 @@
-import { TexturePathResolver } from "./resolver/path/TexturePathResolver.js"
-import { BlockTypeResolver } from "./resolver/type/BlockTypeResolver.js"
-import { TextureFace } from "./texset/TextureFace.js"
-import { TextureFaces } from "./texset/TextureFaces.js"
-import { TextureSet } from "./texset/TextureSet.js"
-import { TextureSetType } from "./texset/TextureSetType"
+import {TextureSetBuilder} from "./TextureSetBuilder.js"
+import { LT_VERSION } from "../../../version/LtVersion.js"
+import { BlockTextureInfoResolver } from "../resolver/info/BlockTextureInfoResolver.js"
+import { TexturePathResolver } from "../resolver/path/TexturePathResolver.js"
+import { BlockTypeResolver } from "../resolver/type/BlockTypeResolver.js"
+import { TextureFace } from "../texset/TextureFace.js"
+import { TextureFaces } from "../texset/TextureFaces.js"
+import { TextureSet } from "../texset/TextureSet.js"
+import { TextureSetType } from "../texset/TextureSetType.js"
 
 
 /**
+ * TextureSetBuilder 1.12 实现类
+ * 
  * 纹理集合构建器
  * 
  * 将 BlockTextureInfoResolver 的输出
@@ -16,29 +21,33 @@ import { TextureSetType } from "./texset/TextureSetType"
  * - 处理单贴图 / 六面贴图
  * - 处理 fallback
  */
-export class TextureSetBuilder {
+export class TextureSetBuilderV_1_12 extends TextureSetBuilder{
 
   /**
    * @param {TextureManager} textureManager
    */
   constructor(textureManager) {
-    this.textureManager = textureManager
+    super(LT_VERSION.V_1_12, textureManager)
   }
 
   /**
    * 构建纹理集合
    *
-   * @param {Object} info BlockTextureInfoResolver 输出的包含贴图信息的对象
+   * @param {string} namespace 方块的命名空间
+   * @param {BlockTextureInfoResolver} infoResolver 对应版本的 BlockTextureInfoResolver
    * @param {BlockTypeResolver} blockTypeResolver 对应版本的 BlockTypeResolver
    * @param {TexturePathResolver} pathResolver 对应版本的 TexturePathResolver
    * @returns {TextureSet} 实例对象
    */
-  build(info, blockTypeResolver, pathResolver) {
+  build(namespace, infoResolver, blockTypeResolver, pathResolver) {
 
-    if (!info) return null
+    // 没有找寻到对应的path，也将null传递给textureManager，让其使用默认材质
+    const blockInfo = infoResolver.resolve(namespace)
+
+    if (!blockInfo) return null
     
     //这里的type是贴图类型，不是方块类型
-    const { textureSetType, textures, mod, axis, x, y  } = info
+    const { textureSetType, textures, mod, axis, x, y  } = blockInfo
 
     const texSet = new TextureSet()
 
@@ -52,34 +61,9 @@ export class TextureSetBuilder {
      */
     const getTex = (name) => {
       if (!name) return this._fallback()
-
+      
       const path = pathResolver.resolve(mod, name)
       return this.textureManager.get(path, name)
-    }
-
-    /**
-     * 处理 #引用
-     * 
-     * 将带有 # 的纹理位置信息格式化，删除 # 号
-     */
-    const resolveRef = (key) => {
-     let v = textures[key]
-      const visited = new Set()
-
-      while (typeof v === 'string' && v.startsWith('#')) {
-
-        const refKey = v.slice(1)
-
-        if (visited.has(refKey)) {
-          console.warn('Texture reference loop:', refKey)
-          return null
-        }
-
-        visited.add(refKey)
-        v = textures[refKey]
-      }
-
-      return v
     }
 
     /**
@@ -89,7 +73,7 @@ export class TextureSetBuilder {
      */
     const pick = (...keys) => {
       for (const k of keys) {
-        const v = resolveRef(k)
+        const v = textures[k]
         if (v) return getTex(v)
       }
       return this._fallback()
@@ -100,7 +84,7 @@ export class TextureSetBuilder {
     // =========================
     if (textureSetType === TextureSetType.SINGLE) {
 
-      const tex = getTex(resolveRef('all'))
+      const tex = getTex(textures["all"])
 
       return texSet.setSingle(tex)
     }
@@ -118,9 +102,11 @@ export class TextureSetBuilder {
         "west":  0,
         "east": 0,
       }
-
-      if(info.blockType){
-        rotates = blockTypeResolver.resolve(info.blockType)   
+      
+      if(blockInfo.blockType){
+        rotates = blockTypeResolver.resolve(blockInfo.blockType) 
+        console.log(rotates);
+          
       }
 
       const faces = new TextureFaces({
@@ -163,10 +149,4 @@ export class TextureSetBuilder {
     return null
   }
 
-  /**
-   * fallback 纹理
-   */
-  _fallback() {
-    return this.textureManager.get(null, '__fallback__')
-  }
 }
