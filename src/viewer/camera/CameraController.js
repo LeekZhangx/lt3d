@@ -54,7 +54,7 @@ export class CameraController {
     this.renderSystem.setCamera(camera)
 
     // 触发渲染
-    this.requestRender?.()
+    this.requestRender()
   }
 
   /* =========================
@@ -63,18 +63,18 @@ export class CameraController {
 
   fit(bounds) {
     const result = this.cameraSystem.fit(bounds)
-    this.requestRender?.()
+    this.requestRender()
     return result
   }
 
   setView(dir, bounds) {
     this.cameraSystem.setView(dir, bounds)
-    this.requestRender?.()
+    this.requestRender()
   }
 
   resize(width, height) {
     this.cameraSystem.resize(width, height)
-    this.requestRender?.()
+    this.requestRender()
   }
 
   /* ========================= */
