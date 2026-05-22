@@ -122,7 +122,7 @@ export class BlockMaterialFactory {
 
           baseMaterial.map = texSet.map
 
-          // BoxMappingUtil.apply(baseMaterial)
+          BoxMappingUtil.apply(baseMaterial)
           materials.push(baseMaterial)
         }
 
@@ -131,12 +131,12 @@ export class BlockMaterialFactory {
         // =========================
         else if (texSet.isMultiple()) {
 
-          const res = BoxSixMappingUtil.apply(
+          BoxSixMappingUtil.apply(
             baseMaterial, 
             texSet
           )
 
-          materials.push(res)
+          materials.push(baseMaterial)
         }
       }
 
