@@ -104,9 +104,7 @@ export class TextureSetBuilderV_1_12 extends TextureSetBuilder{
       }
       
       if(blockInfo.blockType){
-        rotates = blockTypeResolver.resolve(blockInfo.blockType) 
-        console.log(rotates);
-          
+        rotates = blockTypeResolver.resolve(blockInfo.blockType)   
       }
 
       const faces = new TextureFaces({

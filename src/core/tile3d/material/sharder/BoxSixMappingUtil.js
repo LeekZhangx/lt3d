@@ -2,14 +2,14 @@ import * as THREE from 'three'
 import { TextureSet } from '../../texture/texset/TextureSet.js'
 export class BoxSixMappingUtil {
 
-
-
   /**
+   * 
+   * 空间坐标映射纹理材质
    * 
    * @param {THREE.Material} material
    * @param {TextureSet} textureSet 
    * @param {object} options 
-   * @returns 
+   * @returns {THREE.Material} 材质对象
    */
   static apply(material, textureSet, options = {}) {
 
@@ -78,52 +78,6 @@ export class BoxSixMappingUtil {
         }
       ` + shader.fragmentShader
 
-      // shader.fragmentShader = shader.fragmentShader.replace(
-      //   '#include <map_fragment>',
-      //   `
-      //   #ifdef USE_MAP
-
-      //     vec3 p = vWorldPos * boxScale;
-
-      //     if (boxUseFract == 1) p = fract(p);
-
-      //     vec3 n = normalize(vWorldNormal);
-      //     vec3 an = abs(n);
-
-      //     vec2 uv;
-      //     vec4 tex;
-
-      //     if (an.x >= an.y && an.x >= an.z) {
-      //       if (n.x > 0.0) {
-      //         uv = rotateUV(vec2(-p.z, p.y), rotPX);
-      //         tex = texture2D(mapPX, uv);
-      //       } else {
-      //         uv = rotateUV(vec2(p.z, p.y), rotNX);
-      //         tex = texture2D(mapNX, uv);
-      //       }
-      //     } else if (an.y > an.z) {
-      //       if (n.y > 0.0) {
-      //         uv = rotateUV(vec2(p.x, -p.z), rotPY);
-      //         tex = texture2D(mapPY, uv);
-      //       } else {
-      //         uv = rotateUV(vec2(p.x, p.z), rotNY);
-      //         tex = texture2D(mapNY, uv);
-      //       }
-      //     } else {
-      //       if (n.z > 0.0) {
-      //         uv = rotateUV(vec2(p.x, p.y), rotPZ);
-      //         tex = texture2D(mapPZ, uv);
-      //       } else {
-      //         uv = rotateUV(vec2(-p.x, p.y), rotNZ);
-      //         tex = texture2D(mapNZ, uv);
-      //       }
-      //     }
-
-      //     diffuseColor *= tex;
-
-      //   #endif
-      //   `
-      // )
 
       shader.fragmentShader = shader.fragmentShader.replace(
         '#include <map_fragment>',
@@ -170,5 +124,45 @@ export class BoxSixMappingUtil {
     }
 
     material.needsUpdate = true
+
+    return material
   }
+
+  /**
+   * 从纹理集生成 6 个面的纹理数组
+   * 
+   * @param {THREE.Material} baseMaterial 基础材质（模板，会克隆其属性）
+   * @param {TextureSet} textureSet 纹理集
+   * @param {object} options 配置项
+   * @returns {THREE.Material[]} 6 个材质的数组
+   */
+  static apply2(baseMaterial, textureSet) {
+  if (!textureSet.isMultiple()) return [baseMaterial]
+
+    const { px, nx, py, ny, pz, nz } = textureSet.faces
+    
+    const applyTexture = (material, face) => {
+      if (!face.map) return material
+      
+      const texture = face.rot !== 0 ? face.map.clone() : face.map
+      
+      if (face.rot !== 0) {
+        texture.rotation = (face.rot * Math.PI) / 180
+        texture.center.set(0.5, 0.5)
+      }
+      
+      material.map = texture
+      return material
+    }
+    
+    return [
+      applyTexture(baseMaterial.clone(), px),
+      applyTexture(baseMaterial.clone(), nx),
+      applyTexture(baseMaterial.clone(), py),
+      applyTexture(baseMaterial.clone(), ny),
+      applyTexture(baseMaterial.clone(), pz),
+      applyTexture(baseMaterial.clone(), nz)
+    ]
+  }
+
 }

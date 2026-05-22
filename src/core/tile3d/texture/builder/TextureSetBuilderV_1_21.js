@@ -41,28 +41,18 @@ export class TextureSetBuilderV_1_21 extends TextureSetBuilder{
    */
   build(namespace, infoResolver, blockTypeResolver, pathResolver) {
 
+    const res = this._splitStates(namespace)
+
     /**
      * 方块命名空间 如 minecraft:stone
      */
-    let blockName = null
+    let blockName = res.blockName
     /**
      * 方块状态信息，包含 轴axis 朝向facing 等
      */
-    let blockStates = null
+    let blockStates = res.blockStates
 
-    const lastOpen = namespace.lastIndexOf('[')
-    const lastClose = namespace.lastIndexOf(']')
-
-    if (lastOpen === -1 || lastClose === -1 || lastClose < lastOpen) {
-
-      blockName = namespace
-
-    }else{
-
-      blockName =  namespace.slice(0, lastOpen)
-      const statesStr =  namespace.slice(lastOpen + 1, lastClose)
-      blockStates = this._parseAttributeStr(statesStr)
-    }
+    
 
     // 没有找寻到对应的path，也将null传递给textureManager，让其使用默认材质
     const blockInfo = infoResolver.resolve(blockName)
@@ -214,6 +204,46 @@ export class TextureSetBuilderV_1_21 extends TextureSetBuilder{
     }
 
     return null
+  }
+
+  /**
+   * 分离方块 命名空间 和 状态属性
+   * 
+   * 如 minecraft:oak_log[axis=x] 分离为 blockName 和 blockStates
+   * 
+   * @example
+   * 输入 minecraft:oak_log[axis=x]
+   * 返回
+   * {
+   *  blockName: "minecraft:oak_log",
+   *  blockStates: {axis : "x"}
+   * }
+   * 
+   * @param {string} namespace
+   * @returns {object}
+   */
+  _splitStates(namespace){
+    const lastOpen = namespace.lastIndexOf('[')
+    const lastClose = namespace.lastIndexOf(']')
+
+    let blockName = null
+    let blockStates = null
+
+    if (lastOpen === -1 || lastClose === -1 || lastClose < lastOpen) {
+
+      blockName = namespace
+
+    }else{
+
+      blockName =  namespace.slice(0, lastOpen)
+      const statesStr =  namespace.slice(lastOpen + 1, lastClose)
+      blockStates = this._parseAttributeStr(statesStr)
+    }
+
+    return {
+      blockName,
+      blockStates
+    }
   }
 
   /**

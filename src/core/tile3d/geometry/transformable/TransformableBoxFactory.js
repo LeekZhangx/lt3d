@@ -84,7 +84,7 @@ export class TransformableBoxFactory{
       geo.computeBoundingSphere()
 
 
-      //不进行uv处理，由TriplanarUtil完成贴图映射
+      //不进行uv处理，由shader完成贴图映射
       /* ================= UV 处理 ================= */
 
       //在变形之后重新计算
