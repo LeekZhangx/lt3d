@@ -161,7 +161,20 @@ export class CameraSystem {
    */
 
   /**
-   * 根据包围信息调整相机
+   * 根据 包围盒 调整相机的 基础信息
+   * 
+   * 在模型变化后调用
+   * 
+   * @param {Bounds} bounds
+   * @returns {{ center: THREE.Vector3 }}
+   */
+  update(bounds){
+    this.fit(bounds)
+  }
+
+  /**
+   * 根据 包围盒 调整相机的 位置 和 角度
+   * 
    * @param {Bounds} bounds
    * @returns {{ center: THREE.Vector3 }}
    */

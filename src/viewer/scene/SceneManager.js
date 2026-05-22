@@ -98,7 +98,7 @@ export class SceneManager {
     this.lights = { ambient, direct }
 
     direct.shadow.bias = -0.0001
-    direct.shadow.normalBias = 0.02
+    direct.shadow.normalBias = 0.004
 
     // 阴影贴图分辨率
     direct.shadow.mapSize.set(1024, 1024)
@@ -126,19 +126,72 @@ export class SceneManager {
     light.target.position.copy(center)
     light.target.updateMatrixWorld()
 
-    // 阴影相机范围
-    const d = maxDim * 1.5
+  }
 
-    light.shadow.camera.left = -d
-    light.shadow.camera.right = d
-    light.shadow.camera.top = d
-    light.shadow.camera.bottom = -d
+  /**
+   * 适配灯光阴影相机
+   */
+  fitLightsShadow() {
 
-    light.shadow.camera.near = 0.1
-    light.shadow.camera.far = d * 4
+    const light = this.lights.direct
 
-    light.shadow.camera.updateProjectionMatrix()
+    // 灯光未开启阴影
+    if (!light.castShadow) {
+      return
+    }
 
+    const size = this.getSize()
+
+    const maxDim = Math.ceil(
+      Math.max(size.x, size.y, size.z)
+    )
+
+    // =========================
+    // shadow camera 范围
+    // =========================
+
+    const d = maxDim * 1.2
+
+    const cam = light.shadow.camera
+
+    cam.left = -d
+    cam.right = d
+    cam.top = d
+    cam.bottom = -d
+
+    cam.near = 0.1
+    cam.far = d * 4
+
+    cam.updateProjectionMatrix()
+
+    // =========================
+    // shadow map 分辨率
+    // =========================
+
+    let mapSize = 1024
+
+    if (maxDim > 4) {
+      mapSize = 2048
+    }
+
+    if (maxDim > 8) {
+      mapSize = 4096
+    }
+
+    if (maxDim > 16) {
+      mapSize = 8192
+    }
+    
+    const shadow = light.shadow
+
+    if (shadow.mapSize.x !== mapSize) {
+
+      shadow.mapSize.set(mapSize, mapSize)
+
+      // 强制重建 shadow map
+      shadow.map?.dispose()
+      shadow.map = null
+    }
   }
 
   _initGround(texturePath) {
@@ -273,6 +326,7 @@ export class SceneManager {
    */
   updateSceneItems(){
     this.fitLights()
+    this.fitLightsShadow()
     this.fitGround()
   }
 

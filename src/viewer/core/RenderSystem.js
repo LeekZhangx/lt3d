@@ -53,6 +53,13 @@ export class RenderSystem {
     this.renderer.setSize(w, h)
   }
 
+  toogleShadow(){
+    this.renderer.shadowMap.enabled = !this.renderer.shadowMap.enabled
+  }
+
+  getShadowState(){
+    return this.renderer.shadowMap.enabled
+  }
 
   /**
    * 多视口渲染（用于多相机）

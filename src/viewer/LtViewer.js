@@ -160,7 +160,7 @@ export class LtViewer {
     if (this.modelManager.analyze()) {
       const bounds = this.modelManager.getBounds()
 
-      this.cameraSystem.fit(bounds)
+      this.cameraSystem.update(bounds)
 
       this.controlsSystem.fitCenter(bounds.center)
 
