@@ -62,7 +62,7 @@ export class TextureSetBuilderV_1_21 extends TextureSetBuilder{
     //这里的type是贴图类型，不是方块类型
     const { textureSetType, textures, mod } = blockInfo
 
-    const texSet = new TextureSet()
+    const texSet = new TextureSet(LT_VERSION.V_1_21)
 
     /**
      * 获取纹理对象

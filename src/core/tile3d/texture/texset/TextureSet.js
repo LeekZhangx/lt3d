@@ -1,3 +1,4 @@
+import { LT_VERSION } from "../../../version/LtVersion.js";
 import { TextureFaces } from "./TextureFaces.js";
 import { TextureSetType } from "./TextureSetType.js";
 
@@ -36,9 +37,13 @@ import { TextureSetType } from "./TextureSetType.js";
 export class TextureSet {
 
   /**
+   * @param {keyof typeof LT_VERSION} ltVersion lt版本
    * @param {keyof typeof TextureSetType} [type]
    */
-  constructor(type = TextureSetType.SINGLE) {
+  constructor(ltVersion, type = TextureSetType.SINGLE) {
+
+    this.ltVersion = ltVersion
+
     this.type = type
 
     // === 贴图 ===
