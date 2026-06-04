@@ -29,7 +29,7 @@ export class TextureManager {
   /**
    * 通过材质路径获取材质，使用路径名称作为缓存key
    *
-   * @param {string} path
+   * @param {string} path 纹理贴图请求路径，它也作为缓存的key
    * @param {string} name textureName
    * @returns
    */
