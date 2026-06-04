@@ -27,9 +27,7 @@
  * @typedef {Object} IRTile
  * @property {string} block 完整的名称字符串
  *  - 1.12 "minecraft:wool:5"
- *  - 1.21 "minecraft:green_wool"
- * @property {string} blockInfo 方块附属信息，从原方块名称中分离. 不是元数据
- *  - 如"[facing=north]"
+ *  - 1.21 "minecraft:green_wool "可包含 [facing=north] 这样的附属信息
  * @property {number=} color 未解析的十进制数
  * @property {number[]} boxes [x1,y1,z1, x2,y2,z2, mask?, ex0,ex1...]
  */

@@ -1,6 +1,7 @@
-import '../ir/lt-ir.js'
+import {LtIR, LtNode, LtStructure, LtTile} from '../ir/LtIR.js'
+import { LtAdapter } from './LtAdapter.js'
 
-export class LtAdapterV_1_21 {
+export class LtAdapterV_1_21 extends LtAdapter{
 
   /**
    * 将1.21版本的 ltobj转为 供3d化的中间表示
@@ -8,90 +9,78 @@ export class LtAdapterV_1_21 {
    * @param {Object} ltObj 1.21版本
    * @returns {LtIR}
    */
-  static toIR(ltObj) {
+  toIR(ltObj) {
+    const builder = LtIR.builder()
+      .grid(ltObj.grid ?? 16)
+      .size(ltObj.size || [0, 0, 0])
+      .tileCount(ltObj.tiles ?? 0)
+      .tiles(this._parseTiles(ltObj.t))
 
-    const res = {
-      grid: ltObj.grid ?? 16,
-      size: ltObj.size || [0, 0, 0],
-      tileCount: ltObj.tiles ?? 0,
-      tiles: this._parseTiles(ltObj.t),
+    if (ltObj.s) {
+      builder.structure(this._parseStructure(ltObj.s))
     }
 
-    if(ltObj.s){
-      res.structure = this._parseStructure(ltObj.s)
+    if (ltObj.c) {
+      builder.children(this._parseChildren(ltObj.c))
     }
 
-    if(ltObj.c){
-      res.children = this._parseChildren(ltObj.c)
-    }
-
-    return res
+    return builder.build()
   }
 
   /* ========================= node ========================= */
 
-  static _parseChildren(children) {
+  /**
+   * @param {Array} children 
+   * @returns {LtNode[]}
+   */
+  _parseChildren(children) {
     if (!Array.isArray(children)) return []
-
     return children.map(child => this._parseNode(child))
   }
 
-  static _parseNode(node) {
+  /**
+   * @param {Object} node 
+   * @returns {LtNode}
+   */
+  _parseNode(node) {
+    const builder = LtNode.builder()
+      .tiles(this._parseTiles(node.t))
 
-    const res = {
-      tiles: this._parseTiles(node.t)
+    if (node.s) {
+      builder.structure(this._parseStructure(node.s))
     }
 
-    if(node.s){
-      res.structure = this._parseStructure(node.s)
+    if (node.c) {
+      builder.children(this._parseChildren(node.c))
     }
 
-    if(node.c){
-      res.children = this._parseChildren(node.c)
-    }
-
-    return res
+    return builder.build()
   }
 
   /* ========================= tiles ========================= */
 
-  static _parseTiles(tArr) {
+  /**
+   * @param {Array} tArr 
+   * @returns {LtTile[]}
+   */
+  _parseTiles(tArr) {
     if (!Array.isArray(tArr)) return []
 
     const result = []
 
     for (const tileGroup of tArr) {
-
       if (!tileGroup || typeof tileGroup !== 'object') continue
 
-      //1.13后，方块后可能会跟随[facing=north]这样的 方块状态 blockStates
-      //这里不分开，让后续模块处理
+      // 1.13后，方块后可能会跟随[facing=north]这样的 方块状态 blockStates
+      // 这里不分开，让后续模块处理
+      // block和blockStates都保存在block字段中，如 "minecraft:oak_log[axis=y]"
 
-      // const lastOpen = str.lastIndexOf('[')
-      // const lastClose = str.lastIndexOf(']')
+      const tileBuilder = LtTile.builder()
+        .block(tileGroup.tile)
+        .color(tileGroup.color)
+        .boxes(this._parseBoxes(tileGroup.boxes))
 
-      // if (lastOpen === -1 || lastClose === -1 || lastClose < lastOpen) {
-
-      //   block = str
-
-      // }else{
-
-      //   block =  str.slice(0, lastOpen),
-      //   blockStates =  str.slice(lastOpen + 1, lastClose)
-
-      // }
-
-      const res = {
-        block: tileGroup.tile,
-        color: tileGroup.color,
-        boxes: this._parseBoxes(tileGroup.boxes)
-      }
-
-      // if(blockStates){
-      //   res.blockStates = blockStates
-      // }
-
-      result.push(res)
+      result.push(tileBuilder.build())
     }
 
     return result
@@ -99,27 +88,31 @@ export class LtAdapterV_1_21 {
 
   /* ========================= boxes ========================= */
 
-  static _parseBoxes(boxes) {
+  /**
+   * @param {Array} boxes 
+   * @returns {number[][]}
+   */
+  _parseBoxes(boxes) {
     if (!Array.isArray(boxes)) return []
-
     return boxes
   }
 
-
   /* ========================= structure ========================= */
 
-  static _parseStructure(s) {
+  /**
+   * @param {Object} s 
+   * @returns {LtStructure|undefined}
+   */
+  _parseStructure(s) {
     if (!s) return undefined
 
-    const res = {
-      id: s.id
+    const builder = LtStructure.builder()
+      .id(s.id ?? '')
+
+    if (s.name) {
+      builder.name(s.name)
     }
 
-    if(s.name){
-      res.name = s.name
-    }
-
-    return res
+    return builder.build()
   }
-
 }
