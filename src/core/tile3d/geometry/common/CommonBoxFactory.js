@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils'
+import { UVUtils } from '../UVUtils'
 
 /**
  * 普通Box工厂
@@ -49,18 +50,13 @@ export class CommonBoxFactory{
       geo.translate(posX, posY, posZ)
 
 
-      //不进行uv处理，由TriplanarUtil完成贴图映射
-
-      /* ================= UV 处理 ================= */
-      //这里的Box对角线和Lt完全相反，但是为普通的立方体，故不处理
-
-      // UV 始终在最终几何形态上计算
-      // 确保 ex / 非 ex 表现一致
-      // UVUtils.applyBoxUV(
-      //   geo,
-      //   { x1, y1, z1, x2, y2, z2 },
-      //   grid
-      // )
+      // 普通方块需要处理uv
+      // 不做变形，故不用修改立方体对角线
+      UVUtils.applyBoxUV(
+        geo,
+        { x1, y1, z1, x2, y2, z2 },
+        grid
+      )
 
       geometries.push(geo)
     }
