@@ -2,9 +2,10 @@ import * as THREE from 'three'
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { BlockGeometryFactory } from './geometry/BlockGeometryFactory.js';
 import { BlockMaterialFactory } from './material/BlockMaterialFactory.js'
-import { BlockMeshFactory } from './BlockMeshFactory.js';
+import { BoxTextureAtlasUtil } from './material/sharder/BoxTextureAtlasUtil.js'
 import { LtAdapterFactory } from '../adapter/LtAdapterFactory.js';
 import { ResourceSystem } from './resource/ResourceSystem.js';
+import { LtIR, LtNode } from '../ir/LtIR.js';
 
 export class LtMeshBuilder {
 
@@ -61,7 +62,7 @@ export class LtMeshBuilder {
   /**
    * 节点遍历
    * 
-   * @param {object} node
+   * @param {LtIR | LtNode} node
    * @param {object} parent 根集合，存放不同的mesh
    * @param {number} grid
    * @param {object} ctx 
@@ -71,7 +72,7 @@ export class LtMeshBuilder {
 
     if (Array.isArray(node.tiles)) {
       for (const tile of node.tiles) {
-        const mesh = this._genTileMesh(tile, grid, ctx)
+        const mesh = this._genTileMeshWihDiffMat(tile, grid, ctx)
         if (!mesh) continue
 
         const colorStr = tile.color ? "_" + tile.color : "-1"
@@ -90,6 +91,15 @@ export class LtMeshBuilder {
 
   /* ===================== tile ===================== */
 
+  /**
+   * 
+   * @deprecated use _genTileMeshWihDiffMat
+   * 
+   * @param {*} tileBoxGroup 
+   * @param {*} grid 
+   * @param {*} ctx 
+   * @returns 
+   */
   _genTileMesh(tileBoxGroup, grid, ctx) {
 
     const boxes = tileBoxGroup.boxes
@@ -111,9 +121,6 @@ export class LtMeshBuilder {
       color: tileBoxGroup.color
     }
 
-    if(tileBoxGroup.blockStates){
-      tileInfo.blockStates = tileBoxGroup.blockStates
-    }
 
     const materials = BlockMaterialFactory.createMaterial(tileInfo, ctx)
 
@@ -138,31 +145,136 @@ export class LtMeshBuilder {
 
     const meshOrGroup =
       Array.isArray(materials)
-        ? BlockMeshFactory.createMultiPassMesh(geometry, materials)
+        ? this._createMultiPassMesh(geometry, materials)
         : new THREE.Mesh(geometry, materials)
 
-    this._setShadow(meshOrGroup)
 
     return meshOrGroup
   }
 
-  /* ===================== 工具 ===================== */
-
   /**
-   * 设置投射阴影和接受阴影
+   * 对生成的tile分类，common和transformable赋予不同纹理映射mapping类型的材质
    * 
-   * @param {THREE.Mesh} object 
+   * @param {*} tileBoxGroup 
+   * @param {*} grid 
+   * @param {*} ctx 
+   * @returns 
    */
-  _setShadow(object) {
-    object.traverse(obj => {
-      if (obj.isMesh) {
-        obj.castShadow = true
-        obj.receiveShadow = true
+  _genTileMeshWihDiffMat(tileBoxGroup, grid, ctx) {
+
+    const boxes = tileBoxGroup.boxes
+    if (!boxes) return null
+
+    const commonBoxes = []
+    const transformableBoxes = []
+
+    for (const box of boxes) {
+      if (box.length > 6) {
+        transformableBoxes.push(box)
+      } else {
+        commonBoxes.push(box)
       }
-    })
+    }
+
+    const tile = {
+      block: tileBoxGroup.block,
+      color: tileBoxGroup.color
+    }
+
+    const meshes = []
+
+    // 普通长方体 → Texture Atlas (UV)
+    if (commonBoxes.length > 0) {
+      const geo = BlockGeometryFactory.createCommonBoxes(commonBoxes, grid)
+      if (geo) {
+        // MULTIPLE 纹理需将 geometry 各面 UV 重映射到 atlas 图块
+        const texSet = ctx.getTextureSet(tile.block)
+        if (texSet?.isMultiple()) {
+          BoxTextureAtlasUtil.applyUVToGeometry(geo, texSet)
+        }
+
+        const matArr = BlockMaterialFactory.createAtlasMaterial(tile, ctx)
+        const meshOrGroup = this._createMultiPassMesh(geo, matArr)
+        meshes.push(meshOrGroup)
+      }
+    }
+
+    // 变形长方体 → 空间投影（6 独立纹理）
+    if (transformableBoxes.length > 0) {
+      const geo = BlockGeometryFactory.createTransformableBoxes(transformableBoxes, grid)
+      if (geo) {
+        const matArr = BlockMaterialFactory.createProjectedMaterial(tile, ctx)
+        const meshOrGroup = this._createMultiPassMesh(geo, matArr)
+        meshes.push(meshOrGroup)
+      }
+    }
+
+    return this._mergeMeshes(meshes)
   }
+
+  /* ===================== 工具 ===================== */
 
   _genId() {
     return this._id++
+  }
+
+  /**
+   * 创建 Group 组，处理材质混合和渲染顺序
+   * 
+   * @param {THREE.Mesh[]} geometry - Mesh 数组
+   * @param {THREE.Material[]} materials - 材质数组
+   * @returns {THREE.Mesh | THREE.Group}
+   */
+  _createMultiPassMesh(geometry, materials) {
+    // 只有一个材质，没必要 Group
+    if (materials.length === 1) {
+      return new THREE.Mesh(geometry, materials[0])
+    }
+
+    // 多个材质，创建 Group 包含多个 Mesh
+    const group = new THREE.Group()
+
+    materials.forEach((material, index) => {
+      const mesh = new THREE.Mesh(geometry, material)
+
+      // === 关键规则 ===
+      // overlay 层不写深度
+      if (material.blending === THREE.MultiplyBlending) {
+        mesh.renderOrder = 1
+        mesh.material.depthWrite = false
+      } else {
+        mesh.renderOrder = 0
+      }
+
+      group.add(mesh)
+    })
+
+    return group
+  }
+
+  /**
+   * 合并多个 Mesh/Group
+   * @param {Array<THREE.Mesh|THREE.Group>} items
+   * @returns {THREE.Mesh|THREE.Group|null}
+   */
+  _mergeMeshes(items) {
+    if (items.length === 0) return null
+    if (items.length === 1) return items[0]
+
+    const finalGroup = new THREE.Group()
+    
+    items.forEach(item => {
+      if (!item) return
+      
+      if (item.isGroup) {
+        // 如果是 Group，添加其所有子物体
+        item.children.forEach(child => finalGroup.add(child))
+      } else if (item.isMesh) {
+        // 如果是 Mesh，直接添加
+        finalGroup.add(item)
+      }
+    })
+    
+    return finalGroup
   }
 }

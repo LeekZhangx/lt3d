@@ -9,6 +9,7 @@ import { TextureSet } from "../texture/texset/TextureSet.js"
 import { BlockTypeResolver } from "../texture/resolver/type/BlockTypeResolver.js"
 import { BlockTypeResolverFactory } from "../texture/resolver/type/BlockTypeResolverFactory.js"
 import { TextureSetBuilderFactory } from "../texture/builder/TextureSetBuilderFactory.js"
+import { BoxTextureAtlasUtil } from "../material/sharder/BoxTextureAtlasUtil.js"
 
 /**
  * 资源系统
@@ -33,6 +34,12 @@ export class ResourceSystem {
     this.pathResolvers = new Map()
     this.blockTypeResolver = new Map()
     this.builders = new Map()
+
+    /** 渲染回调 — atlas 异步重建后触发懒渲染 */
+    this.onAtlasRebuild = null
+
+    /** atlas 缓存 — `${ltVersion}:${namespace}` → CanvasTexture */
+    this._atlasCache = new Map()
 
   }
 
@@ -228,8 +235,42 @@ export class ResourceSystem {
 
         return builder.build(namespace, infoResolver, blockTypeResolver, pathResolver)
 
-      }
+      },
+
+      /**
+       * 创建纹理图集（通过 ResourceSystem 路由，自动注入 onAtlasRebuild 回调）
+       * @param {TextureSet} textureSet
+       * @param {Object} [options]
+       * @returns {THREE.CanvasTexture}
+       */
+      createAtlas: (textureSet, options) => this.createAtlas(textureSet, options)
     }
+  }
+
+  /**
+   * 创建纹理图集（委托 BoxTextureAtlasMapper，带缓存）
+   *
+   * 同一 `${ltVersion}:${namespace}` 的 atlas 只创建一次，
+   * 后续调用直接返回缓存的 CanvasTexture（异步加载完成后原地更新）。
+   *
+   * @param {TextureSet} textureSet
+   * @param {Object} [options]
+   * @param {string} [options.namespace] 与 textureSet.ltVersion 组成缓存键
+   * @returns {THREE.CanvasTexture}
+   */
+  createAtlas(textureSet, options = {}) {
+    const ns = options.namespace
+    const ver = textureSet.ltVersion
+    const key = ver && ns ? `${ver}:${ns}` : null
+    if (key && this._atlasCache.has(key)) return this._atlasCache.get(key)
+
+    const merged = { ...options }
+    if (this.onAtlasRebuild && !merged.onRebuild) {
+      merged.onRebuild = this.onAtlasRebuild
+    }
+    const atlas = BoxTextureAtlasUtil.createAtlas(textureSet, merged)
+    if (key) this._atlasCache.set(key, atlas)
+    return atlas
   }
 
   _buildTextureSet(resolved) {
@@ -285,6 +326,9 @@ export class ResourceSystem {
   }
 
   dispose() {
+    this.onAtlasRebuild = null
+    this._atlasCache.clear()
+
     this.textureManager.dispose()
 
     this.infoResolvers.clear()

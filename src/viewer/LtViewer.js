@@ -76,6 +76,9 @@ export class LtViewer {
     this.loadingManager = new THREE.LoadingManager()
     this.resourceSystem = new ResourceSystem(this.loadingManager)
 
+    // Atlas 异步重建后触发懒渲染
+    this.resourceSystem.onAtlasRebuild = () => this.requestRender()
+
     this.ltMeshBuilder = new LtMeshBuilder(this.resourceSystem)
 
     //0 相机系统
