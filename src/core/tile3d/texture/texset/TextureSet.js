@@ -197,9 +197,7 @@ export class TextureSet {
    *
    * 等效纹理去向链：PX → PZ → NX → NZ → PX
    */
-  _rotateY(deg) {
-    console.log(deg);
-    
+  _rotateY(deg) {  
     const times = ((deg % 360) + 360) % 360 / 90
 
     for (let i = 0; i < times; i++) {

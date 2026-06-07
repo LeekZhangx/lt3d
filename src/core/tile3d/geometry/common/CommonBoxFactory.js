@@ -50,13 +50,7 @@ export class CommonBoxFactory{
       geo.translate(posX, posY, posZ)
 
 
-      // 普通方块需要处理uv
-      // 不做变形，故不用修改立方体对角线
-      UVUtils.applyBoxUV(
-        geo,
-        { x1, y1, z1, x2, y2, z2 },
-        grid
-      )
+      // UV 由 BoxTextureAtlasUtil.applyUVToGeometry 空间投影处理
       // 不做变形，故不用修改立方体对角线
 
       geometries.push(geo)
