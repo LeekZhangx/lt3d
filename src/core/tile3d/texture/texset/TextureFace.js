@@ -6,7 +6,7 @@ export class TextureFace {
   /**
    * 
    * @param {THREE.Texture} map 纹理贴图
-   * @param {number} rot 纹理贴图旋转角度
+   * @param {number} rot 纹理贴图旋转角度，顺时针方向CW
    */
   constructor(map , rot){
     this.map = map
