@@ -189,17 +189,17 @@ export class TextureSet {
   }
 
   /**
-   * 方块整体 绕 Y 轴旋转（90°步进）
+   * 绕 Y 轴旋转（90°步进）
    *
-   * 影响：
-   * - PX → PZ → NX → NZ
-   * - 同时更新对应面的 UV 旋转
+   * 几何面固定，方块纹理随旋转迁移。
+   * 顺时针（从 +Y 看向 -Y）：PX 面纹理由 NZ 提供，PZ 由 PX 提供…
+   * 即代码 PX ← NZ ← NX ← PZ ← PX（纹理来源链）
    *
-   * @param {number} deg
-   * @private
+   * 等效纹理去向链：PX → PZ → NX → NZ → PX
    */
   _rotateY(deg) {
-
+    console.log(deg);
+    
     const times = ((deg % 360) + 360) % 360 / 90
 
     for (let i = 0; i < times; i++) {
@@ -208,24 +208,19 @@ export class TextureSet {
 
       const tmp = f.px.clone()
 
-      f.px = f.pz.clone()
-      f.pz = f.nx.clone()
-      f.nx = f.nz.clone()
-      f.nz = tmp
+      f.px = f.nz.clone()
+      f.nz = f.nx.clone()
+      f.nx = f.pz.clone()
+      f.pz = tmp
 
       f.py.rotate(90)
-      f.ny.rotate(90)
+      f.ny.rotate(-90)
     }
   }
 
   /**
-   * 方块整体 绕 X 轴旋转（90°步进）
-   *
-   * 影响：
-   * - PY → PZ → NY → NZ
-   *
-   * @param {number} deg
-   * @private
+   * 绕 X 轴旋转（90°步进）
+   * 纹理去向链：PY → PZ → NY → NZ → PY
    */
   _rotateX(deg) {
     const times = ((deg % 360) + 360) % 360 / 90
@@ -237,25 +232,18 @@ export class TextureSet {
       const tmp = f.py.clone()
 
       f.py = f.pz.clone()
-      f.pz = f.ny.clone()
-      f.ny = f.nz.clone()
+      f.pz = f.nx.clone()
+      f.nx = f.nz.clone()
       f.nz = tmp
 
-      f.py.rotate(90)
-      f.ny.rotate(90)
-      f.pz.rotate(90)
-      f.nz.rotate(90)
+      f.px.rotate(90)
+      f.nx.rotate(-90)
     }
   }
 
   /**
-   * 方块整体 绕 Z 轴旋转（90°步进）
-   *
-   * 影响：
-   * - PX → PY → NX → NY
-   *
-   * @param {number} deg
-   * @private
+   * 绕 Z 轴旋转（90°步进）
+   * 纹理去向链：PX → PY → NX → NY → PX
    */
   _rotateZ(deg) {
     const times = ((deg % 360) + 360) % 360 / 90
@@ -264,17 +252,15 @@ export class TextureSet {
 
       const f = this.faces
 
-      const tmp = f.px.clone()
+      const tmp = f.py.clone()
 
-      f.px = f.py.clone()
       f.py = f.nx.clone()
       f.nx = f.ny.clone()
-      f.ny = tmp
+      f.ny = f.px.clone()
+      f.px = tmp
 
-      f.px.rotate(90)
-      f.nx.rotate(90)
-      f.py.rotate(90)
-      f.ny.rotate(90)
+      f.pz.rotate(90)
+      f.nz.rotate(-90)
     }
   }
 
