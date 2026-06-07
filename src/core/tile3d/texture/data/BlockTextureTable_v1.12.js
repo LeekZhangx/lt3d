@@ -1247,9 +1247,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_white"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:orange_glazed_terracotta": {
@@ -1260,9 +1260,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_orange"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:magenta_glazed_terracotta": {
@@ -1273,9 +1273,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_magenta"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:light_blue_glazed_terracotta": {
@@ -1286,9 +1286,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_light_blue"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:yellow_glazed_terracotta": {
@@ -1299,9 +1299,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_yellow"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:lime_glazed_terracotta": {
@@ -1312,9 +1312,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_lime"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:pink_glazed_terracotta": {
@@ -1325,9 +1325,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_pink"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:gray_glazed_terracotta": {
@@ -1338,9 +1338,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_gray"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:silver_glazed_terracotta": {
@@ -1351,9 +1351,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_silver"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:cyan_glazed_terracotta": {
@@ -1364,9 +1364,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_cyan"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:purple_glazed_terracotta": {
@@ -1377,9 +1377,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_purple"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:blue_glazed_terracotta": {
@@ -1390,9 +1390,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_blue"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:brown_glazed_terracotta": {
@@ -1403,9 +1403,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_brown"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:green_glazed_terracotta": {
@@ -1416,9 +1416,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_green"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:red_glazed_terracotta": {
@@ -1429,9 +1429,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_red"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:black_glazed_terracotta": {
@@ -1442,9 +1442,9 @@ const BLOCK_TEXTURE_TABLE_MC_1_12 = {
                             "all":"glazed_terracotta_black"
                         }
                     },
-                    "1":{"ref":"0", "y":270},
+                    "1":{"ref":"0", "y":90},
                     "2":{"ref":"0", "y":180},
-                    "3":{"ref":"0", "y":90},
+                    "3":{"ref":"0", "y":270},
                 }
             },
             "minecraft:concrete": {
