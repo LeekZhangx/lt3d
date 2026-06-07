@@ -42,14 +42,19 @@ export class UVUtils {
       ({ x1, y1, z1, x2, y2, z2 } = box)
     }
 
-    const scale = 1 / grid
-    // 将 block 坐标映射到 [0,1] UV
-    let nx1 = x1 * scale
-    let nx2 = x2 * scale
-    let ny1 = y1 * scale
-    let ny2 = y2 * scale
-    let nz1 = z1 * scale
-    let nz2 = z2 * scale
+    // 块内相对坐标映射到 [0,1] UV（同 applyBoxUVNonIndexed 逻辑）
+    let nx1 = x1 % grid
+    let nx2 = x2 % grid
+    let ny1 = y1 % grid
+    let ny2 = y2 % grid
+    let nz1 = z1 % grid
+    let nz2 = z2 % grid
+    if (nx2 === 0 && x2 > 0) nx2 = grid
+    if (ny2 === 0 && y2 > 0) ny2 = grid
+    if (nz2 === 0 && z2 > 0) nz2 = grid
+    nx1 /= grid; nx2 /= grid
+    ny1 /= grid; ny2 /= grid
+    nz1 /= grid; nz2 /= grid
 
     const uv = geometry.getAttribute('uv')
     /**

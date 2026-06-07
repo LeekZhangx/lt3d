@@ -52,11 +52,12 @@ export class CommonBoxFactory{
 
       // 普通方块需要处理uv
       // 不做变形，故不用修改立方体对角线
-      // UVUtils.applyBoxUV(
-      //   geo,
-      //   { x1, y1, z1, x2, y2, z2 },
-      //   grid
-      // )
+      UVUtils.applyBoxUV(
+        geo,
+        { x1, y1, z1, x2, y2, z2 },
+        grid
+      )
+      // 不做变形，故不用修改立方体对角线
 
       geometries.push(geo)
     }
