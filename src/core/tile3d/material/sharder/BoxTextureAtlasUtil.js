@@ -20,10 +20,11 @@ import * as THREE from 'three'
 export class BoxTextureAtlasUtil {
 
   static DEFAULT_TILE_SIZE = 16
-  static ATLAS_COLS = 3
+  static DEFAULT_PADDING = 1
+  static ATLAS_COLS = 4
   static ATLAS_ROWS = 2
 
-  /** 面 → atlas 图块位置 */
+  /** 面 → atlas 图块位置（4×2，col 3 空闲） */
   static FACE_TILES = {
     px: { col: 0, row: 0 },
     py: { col: 1, row: 0 },
@@ -31,6 +32,19 @@ export class BoxTextureAtlasUtil {
     nx: { col: 0, row: 1 },
     ny: { col: 1, row: 1 },
     nz: { col: 2, row: 1 },
+  }
+
+  /**
+   * 从 TextureSet 中获取实际纹理尺寸（取第一个已加载图片的 naturalWidth）
+   */
+  static _detectTileSize(textureSet) {
+    if (!textureSet.isMultiple()) return 0
+    const faces = textureSet.faces
+    for (const name of ['px','nx','py','ny','pz','nz']) {
+      const img = faces[name]?.map?.image
+      if (img && img.naturalWidth > 0) return img.naturalWidth
+    }
+    return 0
   }
 
   /* ================= 主入口 ================= */
@@ -66,15 +80,16 @@ export class BoxTextureAtlasUtil {
    * @returns {THREE.CanvasTexture}
    */
   static buildAtlas(textureSet, options = {}) {
-    const { tileSize = this.DEFAULT_TILE_SIZE } = options
+    const N = options.tileSize || this._detectTileSize(textureSet) || this.DEFAULT_TILE_SIZE
+    const P = options.padding ?? this.DEFAULT_PADDING
     const cols = this.ATLAS_COLS
     const rows = this.ATLAS_ROWS
 
     const canvas = document.createElement('canvas')
-    canvas.width = tileSize * cols
-    canvas.height = tileSize * rows
+    canvas.width = N * cols + P * (cols + 1)
+    canvas.height = N * rows + P * (rows + 1)
 
-    this._drawAtlas(canvas, textureSet, tileSize)
+    this._drawAtlas(canvas, textureSet, N, P)
 
     const atlas = new THREE.CanvasTexture(canvas)
     atlas.magFilter = THREE.NearestFilter
@@ -89,45 +104,69 @@ export class BoxTextureAtlasUtil {
   }
 
   /**
-   * 在指定 canvas 上绘制图集
+   * 在指定 canvas 上绘制图集（含边界扩展）
    */
-  static _drawAtlas(canvas, textureSet, tileSize) {
+  static _drawAtlas(canvas, textureSet, N, P) {
     const ctx = canvas.getContext('2d')
     ctx.imageSmoothingEnabled = false
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     if (textureSet.isSingle()) {
       const img = textureSet.map?.image
-      if (img) {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-      }
+      if (img) ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
       return
     }
-
     if (!textureSet.isMultiple()) return
 
     const faces = textureSet.faces
-    const faceMap = {
-      px: faces.px, nx: faces.nx,
-      py: faces.py, ny: faces.ny,
-      pz: faces.pz, nz: faces.nz,
-    }
+    const faceMap = { px: faces.px, nx: faces.nx, py: faces.py, ny: faces.ny, pz: faces.pz, nz: faces.nz }
+    const step = N + P
 
     for (const [faceName, tile] of Object.entries(this.FACE_TILES)) {
       const face = faceMap[faceName]
       const img = face?.map?.image
       if (!img) continue
 
-      const dx = tile.col * tileSize
-      const dy = tile.row * tileSize
+      // tile 内部区域（不含 padding）
+      const dx = tile.col * step + P
+      const dy = tile.row * step + P
 
       ctx.save()
-      ctx.translate(dx + tileSize / 2, dy + tileSize / 2)
-      // TextureSet 顺时针旋转，Canvas flipY 会反转方向，取负补偿
+      ctx.translate(dx + N / 2, dy + N / 2)
       ctx.rotate((face.rot * Math.PI) / 180)
-      ctx.drawImage(img, -tileSize / 2, -tileSize / 2, tileSize, tileSize)
+      ctx.drawImage(img, -N / 2, -N / 2, N, N)
       ctx.restore()
+
+      // 边界扩展：复制边缘 1px 到 padding 区（防 mipmap 渗色）
+      if (P > 0) {
+        this._extendEdges(ctx, dx, dy, N, P)
+      }
     }
+  }
+
+  /** 将 N×N 区域边缘像素向外复制 P 像素 */
+  static _extendEdges(ctx, dx, dy, N, P) {
+    // 上边 → 向上扩展
+    const top = ctx.getImageData(dx, dy, N, 1)
+    for (let i = 1; i <= P; i++) ctx.putImageData(top, dx, dy - i)
+    // 下边
+    const bottom = ctx.getImageData(dx, dy + N - 1, N, 1)
+    for (let i = 1; i <= P; i++) ctx.putImageData(bottom, dx, dy + N - 1 + i)
+    // 左边
+    const left = ctx.getImageData(dx, dy, 1, N)
+    for (let i = 1; i <= P; i++) ctx.putImageData(left, dx - i, dy)
+    // 右边
+    const right = ctx.getImageData(dx + N - 1, dy, 1, N)
+    for (let i = 1; i <= P; i++) ctx.putImageData(right, dx + N - 1 + i, dy)
+    // 四角
+    const tl = ctx.getImageData(dx, dy, 1, 1)
+    for (let i = 1; i <= P; i++) for (let j = 1; j <= P; j++) ctx.putImageData(tl, dx - i, dy - j)
+    const tr = ctx.getImageData(dx + N - 1, dy, 1, 1)
+    for (let i = 1; i <= P; i++) for (let j = 1; j <= P; j++) ctx.putImageData(tr, dx + N - 1 + i, dy - j)
+    const bl = ctx.getImageData(dx, dy + N - 1, 1, 1)
+    for (let i = 1; i <= P; i++) for (let j = 1; j <= P; j++) ctx.putImageData(bl, dx - i, dy + N - 1 + j)
+    const br = ctx.getImageData(dx + N - 1, dy + N - 1, 1, 1)
+    for (let i = 1; i <= P; i++) for (let j = 1; j <= P; j++) ctx.putImageData(br, dx + N - 1 + i, dy + N - 1 + j)
   }
 
   /* ================= 异步重建 ================= */
@@ -154,13 +193,16 @@ export class BoxTextureAtlasUtil {
       })
 
       if (allLoaded) {
-        const { tileSize = this.DEFAULT_TILE_SIZE } = options
+        const N = options.tileSize || this._detectTileSize(textureSet) || this.DEFAULT_TILE_SIZE
+        const P = options.padding ?? this.DEFAULT_PADDING
+        const cols = this.ATLAS_COLS, rows = this.ATLAS_ROWS
+        const cw = N * cols + P * (cols + 1), ch = N * rows + P * (rows + 1)
         const canvas = /** @type {HTMLCanvasElement} */ (atlasTexture.image)
         if (canvas) {
-          this._drawAtlas(canvas, textureSet, tileSize)
+          if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch }
+          this._drawAtlas(canvas, textureSet, N, P)
           atlasTexture.needsUpdate = true
           if (material) material.needsUpdate = true
-          // 通知外部（如 ResourceSystem → LtViewer.requestRender）
           if (options.onRebuild) options.onRebuild()
         }
         return
@@ -176,54 +218,101 @@ export class BoxTextureAtlasUtil {
 
   /* ================= Geometry UV 重映射 ================= */
 
-  /**
-   * rotateUV（与 shader BoxSixMappingUtil 一致 — mat2(c,-s; s,c) CCW）
-   */
-  /**
-   * UVUtils 已设正确块内相对 UV（含 flipU 方向），直接线性映射到 atlas 图块位置
-   */
-  static applyUVToGeometry(geometry, textureSet) {
+  // Shader 面公式（与 BoxSixMappingUtil 一致），从顶点世界位置算 UV
+  static _SHADER_UV = {
+    px: (x,y,z) => ({ pu: z, pv: y, us: -1, vs: 1 }),
+    nx: (x,y,z) => ({ pu: z, pv: y, us: 1,  vs: 1 }),
+    py: (x,y,z) => ({ pu: x, pv: z, us: 1,  vs: -1 }),
+    ny: (x,y,z) => ({ pu: x, pv: z, us: 1,  vs: 1 }),
+    pz: (x,y,z) => ({ pu: x, pv: y, us: 1,  vs: 1 }),
+    nz: (x,y,z) => ({ pu: x, pv: y, us: -1, vs: 1 }),
+  }
+
+  /** 空间投影：shader fract 公式 → 按面位置投射 UV 子区域 → atlas tile */
+  static applyUVToGeometry(geometry, textureSet, options = {}) {
     if (!textureSet.isMultiple()) return
+    const pos = geometry.getAttribute('position')
     const uv = geometry.getAttribute('uv')
     const index = geometry.getIndex()
     const groups = geometry.groups
     const faceOrder = ['px', 'nx', 'py', 'ny', 'pz', 'nz']
+    const frac = (v) => v - Math.floor(v)
 
+    const N = options.tileSize || this._detectTileSize(textureSet) || this.DEFAULT_TILE_SIZE
+    const P = options.padding ?? this.DEFAULT_PADDING
+    const step = N + P
+    const cw = N * this.ATLAS_COLS + P * (this.ATLAS_COLS + 1)
+    const ch = N * this.ATLAS_ROWS + P * (this.ATLAS_ROWS + 1)
+    const tileUV = (col, row) => ({
+      au0: (col * step + P) / cw,
+      au1: (col * step + P + N) / cw,
+      av0: 1 - (row * step + P + N) / ch,
+      av1: 1 - (row * step + P) / ch,
+    })
+
+    const doFace = (verts, faceName) => {
+      const tile = this.FACE_TILES[faceName]
+      if (!tile || verts.length === 0) return
+      const { au0, au1, av0, av1 } = tileUV(tile.col, tile.row)
+      const uvFn = this._SHADER_UV[faceName]
+
+      let puMin = Infinity, puMax = -Infinity, pvMin = Infinity, pvMax = -Infinity
+      for (const vi of verts) {
+        const { pu, pv, us, vs } = uvFn(pos.array[vi*3], pos.array[vi*3+1], pos.array[vi*3+2])
+        const pvU = pu * us, pvV = pv * vs
+        if (pvU < puMin) puMin = pvU; if (pvU > puMax) puMax = pvU
+        if (pvV < pvMin) pvMin = pvV; if (pvV > pvMax) pvMax = pvV
+      }
+      for (const vi of verts) {
+        const { pu, pv, us, vs } = uvFn(pos.array[vi*3], pos.array[vi*3+1], pos.array[vi*3+2])
+        const pvU = pu * us, pvV = pv * vs
+        let uLoc = frac(pvU), vLoc = frac(pvV)
+        if (Math.abs(pvU - puMax) < 1e-9 && uLoc < 1e-9) uLoc = 1.0
+        if (Math.abs(pvV - pvMax) < 1e-9 && vLoc < 1e-9) vLoc = 1.0
+        uv.setXY(vi, au0 + uLoc * (au1 - au0), av0 + vLoc * (av1 - av0))
+      }
+    }
+
+    /* ========== 路径 A：有 groups ========== */
     if (groups && groups.length > 0) {
       for (let i = 0; i < groups.length; i++) {
         const group = groups[i]
-        const tile = this.FACE_TILES[faceOrder[i % 6]]
-        if (!tile) continue
-        const au0 = tile.col / 3, au1 = (tile.col + 1) / 3
-        const av0 = 1 - (tile.row + 1) / 2, av1 = 1 - tile.row / 2
         const visited = new Set()
-        const proc = (vi) => {
-          if (visited.has(vi)) return
-          visited.add(vi)
-          uv.setXY(vi, au0 + uv.getX(vi) * (au1 - au0), av0 + uv.getY(vi) * (av1 - av0))
+        const verts = []
+        if (index) {
+          for (let j = 0; j < group.count; j++) {
+            const vi = index.getX(group.start + j)
+            if (!visited.has(vi)) { visited.add(vi); verts.push(vi) }
+          }
+        } else {
+          for (let j = 0; j < group.count; j++) {
+            const vi = group.start + j
+            if (!visited.has(vi)) { visited.add(vi); verts.push(vi) }
+          }
         }
-        if (index) for (let j = 0; j < group.count; j++) proc(index.getX(group.start + j))
-        else for (let j = 0; j < group.count; j++) proc(group.start + j)
+        doFace(verts, faceOrder[i % 6])
       }
       uv.needsUpdate = true
       return
     }
-    // 无 groups：逐顶点法线判定
+
+    /* ========== 路径 B：无 groups，法线聚类 ========== */
     const normal = geometry.getAttribute('normal')
     if (!normal) return
-    for (let vi = 0; vi < uv.count; vi++) {
+    const clusters = {}
+    for (let vi = 0; vi < pos.count; vi++) {
       const nx = normal.getX(vi), ny = normal.getY(vi), nz = normal.getZ(vi)
-      let faceName
-      if (nx > 0.9) faceName = 'px'; else if (nx < -0.9) faceName = 'nx'
-      else if (ny > 0.9) faceName = 'py'; else if (ny < -0.9) faceName = 'ny'
-      else if (nz > 0.9) faceName = 'pz'; else if (nz < -0.9) faceName = 'nz'
+      let fn
+      if (nx > 0.9) fn = 'px'; else if (nx < -0.9) fn = 'nx'
+      else if (ny > 0.9) fn = 'py'; else if (ny < -0.9) fn = 'ny'
+      else if (nz > 0.9) fn = 'pz'; else if (nz < -0.9) fn = 'nz'
       else continue
-      const tile = this.FACE_TILES[faceName]
-      if (!tile) continue
-      const au0 = tile.col / 3, au1 = (tile.col + 1) / 3
-      const av0 = 1 - (tile.row + 1) / 2, av1 = 1 - tile.row / 2
-      uv.setXY(vi, au0 + uv.getX(vi) * (au1 - au0), av0 + uv.getY(vi) * (av1 - av0))
+      const pIdx = fn[1] === 'x' ? 0 : (fn[1] === 'y' ? 1 : 2)
+      const k = `${fn}:${Math.round(pos.array[vi*3+pIdx]*1e6)/1e6}`
+      if (!clusters[k]) clusters[k] = { fn, verts: [] }
+      clusters[k].verts.push(vi)
     }
+    for (const c of Object.values(clusters)) doFace(c.verts, c.fn)
     uv.needsUpdate = true
   }
 }
