@@ -111,8 +111,8 @@ export const BLOCK_TYPE_TABLE_1_12 = {
       "faces": {
         "up":    { "texture": "#pattern", "rotation": 0   },
         "down":  { "texture": "#pattern", "rotation": 0 },
-        "north": { "texture": "#pattern", "rotation": 270  },
-        "south": { "texture": "#pattern", "rotation": 90 },
+        "north": { "texture": "#pattern", "rotation": 90  },
+        "south": { "texture": "#pattern", "rotation": 270 },
         "west":  { "texture": "#pattern", "rotation": 0 },
         "east":  { "texture": "#pattern", "rotation": 180  }
       }
