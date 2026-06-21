@@ -221,7 +221,10 @@ export class LtMeshBuilder {
   _createMultiPassMesh(geometry, materials) {
     // 只有一个材质，没必要 Group
     if (materials.length === 1) {
-      return new THREE.Mesh(geometry, materials[0])
+      const mesh = new THREE.Mesh(geometry, materials[0])
+      mesh.castShadow = true
+      mesh.receiveShadow = true
+      return mesh
     }
 
     // 多个材质，创建 Group 包含多个 Mesh
@@ -229,6 +232,9 @@ export class LtMeshBuilder {
 
     materials.forEach((material, index) => {
       const mesh = new THREE.Mesh(geometry, material)
+
+      mesh.castShadow = true
+      mesh.receiveShadow = true
 
       // === 关键规则 ===
       // overlay 层不写深度

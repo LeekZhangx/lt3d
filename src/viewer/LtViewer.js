@@ -258,8 +258,9 @@ export class LtViewer {
 
     if(!this.sceneController){
       this.sceneController = new SceneController(
-        this.sceneManager, 
-        () => this.requestRender()
+        this.sceneManager,
+        () => this.requestRender(),
+        this.renderSystem
       )
     }
 

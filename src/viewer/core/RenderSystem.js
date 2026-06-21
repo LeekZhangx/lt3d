@@ -53,8 +53,8 @@ export class RenderSystem {
     this.renderer.setSize(w, h)
   }
 
-  toogleShadow(){
-    this.renderer.shadowMap.enabled = !this.renderer.shadowMap.enabled
+  toggleShadow(enabled) {
+    this.renderer.shadowMap.enabled = enabled
   }
 
   getShadowState(){

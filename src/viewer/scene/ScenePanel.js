@@ -78,6 +78,16 @@ export class ScenePanel {
         this.controller.updateDirectLightPosition({ z: v })
     })
 
+    // ===== 阴影开关 =====
+    const shadowState = this.controller.getShadowState()
+    directLightState.shadowEnabled = shadowState.enabled
+
+    directLightFolder.add(directLightState, 'shadowEnabled')
+      .name('Shadows')
+      .onChange(v => {
+        this.controller.updateShadowEnabled(v)
+      })
+
     // ===== 环境光 =====
     const ambientLightFolder = this.gui.addFolder('Ambient Light')
 

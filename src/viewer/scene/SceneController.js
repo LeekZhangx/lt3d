@@ -12,10 +12,12 @@ export class SceneController {
   /**
    * @param {SceneManager} sceneManager 场景管理器
    * @param {() => void} requestRender 请求重新渲染函数
+   * @param {import('../core/RenderSystem.js').RenderSystem} renderSystem 渲染系统
    */
-  constructor(sceneManager, requestRender) {
+  constructor(sceneManager, requestRender, renderSystem) {
     this.sceneManager = sceneManager
     this.requestRender = requestRender
+    this.renderSystem = renderSystem
   }
 
   // ======================
@@ -46,6 +48,13 @@ export class SceneController {
       y: light.position.y,
       z: light.position.z
     }
+  }
+
+  /**
+   * 获取阴影启用状态
+   */
+  getShadowState() {
+    return this.sceneManager.getShadowState()
   }
 
   /**
@@ -120,6 +129,16 @@ export class SceneController {
    */
   updateAmbientLightIntensity(intensity) {
     this.sceneManager.setAmbientLightIntensity(intensity)
+    this.requestRender()
+  }
+
+  /**
+   * 启用/禁用阴影
+   * @param {boolean} enabled
+   */
+  updateShadowEnabled(enabled) {
+    this.sceneManager.toggleShadow(enabled)
+    this.renderSystem.toggleShadow(enabled)
     this.requestRender()
   }
 
@@ -236,5 +255,6 @@ export class SceneController {
   dispose(){
     this.sceneManager = null
     this.requestRender = null
+    this.renderSystem = null
   }
 }

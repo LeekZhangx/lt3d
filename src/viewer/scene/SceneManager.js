@@ -82,6 +82,16 @@ export class SceneManager {
     return this._getCenter()
   }
 
+  /**
+   * 获取阴影启用状态
+   * @returns {{ enabled: boolean }}
+   */
+  getShadowState() {
+    return {
+      enabled: this.lights?.direct?.castShadow ?? false
+    }
+  }
+
   init() {
     this._initLights()
     this._initGround()
@@ -305,6 +315,21 @@ export class SceneManager {
   setAmbientLightIntensity(v){
     if (this.lights.ambient) {
       this.lights.ambient.intensity = v
+    }
+  }
+
+  /**
+   * 启用/禁用平行光阴影
+   * @param {boolean} enabled
+   */
+  toggleShadow(enabled) {
+    const light = this.lights.direct
+    if (!light) return
+
+    light.castShadow = enabled
+
+    if (enabled) {
+      this.fitLightsShadow()
     }
   }
 
