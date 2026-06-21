@@ -6,6 +6,7 @@ import { FcbMaterialFactory } from './fcb/FcbMaterialFactory.js'
 import { MaterialResolver } from './materials/MaterialResolver.js'
 import { BoxMappingUtil } from './sharder/BoxMappingUtil.js'
 import { BoxSixMappingUtil } from './sharder/BoxSixMappingUtil.js'
+import { BoxTextureAtlasUtil } from './sharder/BoxTextureAtlasUtil.js'
 import { TextureSet } from '../texture/texset/TextureSet.js'
 
 
@@ -189,9 +190,9 @@ export class BlockMaterialFactory {
         else if (texSet.isMultiple()) {
 
           if (uvMappingType === UVMappingType.ATLAS) {
-            // Texture Atlas (UV): Canvas 图集，UV 由 geometry 指向各图块
+            // Texture Atlas: Canvas 图集 + 逐像素空间投影 shader
             baseMaterial.map = ctx.createAtlas(texSet, { material: baseMaterial, namespace: tile.block })
-            // 懒加载渲染：贴图替换后需标记材质更新
+            BoxTextureAtlasUtil.applyShaderToMaterial(baseMaterial, texSet)
             baseMaterial.needsUpdate = true
           } else {
             // 六独立纹理: 6 个 sampler2D + shader 注入

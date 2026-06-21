@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { BlockGeometryFactory } from './geometry/BlockGeometryFactory.js';
 import { BlockMaterialFactory } from './material/BlockMaterialFactory.js'
-import { BoxTextureAtlasUtil } from './material/sharder/BoxTextureAtlasUtil.js'
 import { LtAdapterFactory } from '../adapter/LtAdapterFactory.js';
 import { ResourceSystem } from './resource/ResourceSystem.js';
 import { LtIR, LtNode } from '../ir/LtIR.js';
@@ -183,16 +182,10 @@ export class LtMeshBuilder {
 
     const meshes = []
 
-    // 普通长方体 → Texture Atlas (UV)
+    // 普通长方体 → Texture Atlas (shader 逐像素空间投影)
     if (commonBoxes.length > 0) {
       const geo = BlockGeometryFactory.createCommonBoxes(commonBoxes, grid)
       if (geo) {
-        // MULTIPLE 纹理需将 geometry 各面 UV 重映射到 atlas 图块
-        const texSet = ctx.getTextureSet(tile.block)
-        if (texSet?.isMultiple()) {
-          BoxTextureAtlasUtil.applyUVToGeometry(geo, texSet)
-        }
-
         const matArr = BlockMaterialFactory.createAtlasMaterial(tile, ctx)
         const meshOrGroup = this._createMultiPassMesh(geo, matArr)
         meshes.push(meshOrGroup)
