@@ -369,6 +369,7 @@
         if (viewer.clear) viewer.clear()
 
         viewer.loadModelFromLtObj(ltObj, 'model')
+        showAtlasTex()
       } catch (e) {
         console.error(e)
         alert("Parsing error, please check the txt format.")
@@ -394,8 +395,63 @@
     })
 
     // 初始渲染
-    renderFromText(defaultTxt)
+    renderFromText(defaultTxt);
 
+function showAtlasTex() {
+
+  // 清除旧面板
+  document.getElementById("atlas-debug-panel")?.remove();
+
+  const cache = viewer.resourceSystem._atlasCache;
+
+  // 创建调试面板
+  const panel = document.createElement("div");
+  panel.id = "atlas-debug-panel";
+
+  panel.style.position = "fixed";
+  panel.style.right = "10px";
+  panel.style.top = "10px";
+  panel.style.zIndex = "999999";
+  panel.style.background = "rgba(30,30,30,0.9)";
+  panel.style.padding = "10px";
+  panel.style.maxHeight = "90vh";
+  panel.style.overflowY = "auto";
+  panel.style.display = "flex";
+  panel.style.flexDirection = "column";
+  panel.style.gap = "10px";
+
+  for (const [key, atlas] of cache) {
+
+    if (!atlas?.image) continue;
+
+    const wrapper = document.createElement("div");
+
+    // 标题
+    const title = document.createElement("div");
+    title.style.color = "white";
+    title.style.fontSize = "12px";
+    title.style.marginBottom = "4px";
+
+    title.textContent = key
+
+    wrapper.appendChild(title);
+
+    // 直接使用 atlas 的 canvas
+    const canvas = atlas.image;
+
+    canvas.style.width = "256px";
+    canvas.style.height = "128px";
+    canvas.style.imageRendering = "pixelated";
+    canvas.style.border = "1px solid red";
+    canvas.style.background = "#000";
+
+    wrapper.appendChild(canvas);
+
+    panel.appendChild(wrapper);
+  }
+
+  document.body.appendChild(panel);
+}
   </script>
 </body>
 </html>
