@@ -2,18 +2,20 @@ import * as THREE from 'three'
 
 /**
  * ============================================================
- * BoxTextureAtlasUtil  — 纯 UV 模式，无 shader 注入
+ * BoxTextureAtlasUtil  — Canvas 图集 + 逐像素空间投影 shader
  *
- * MULTIPLE: 将 6 面纹理烘焙为 Canvas 物理图集 + 修改 geometry.uv 指向各图块
- * SINGLE:   直接使用原纹理，geometry.uv 保持不变
+ * MULTIPLE: 将 6 面纹理烘焙为 Canvas 图集，通过 applyShaderToMaterial()
+ *           注入片段着色器，在 GPU 中逐像素做 fract(worldPos) → 面 UV
+ *           → atlas tile 映射，避免顶点 UV 插值带来的回绕/拉伸。
+ * SINGLE:   直接使用原纹理，无 shader 注入。
  *
- * Atlas 布局（3 列 x 2 行）：
- *   | PX | PY | PZ |
- *   | NX | NY | NZ |
+ * Atlas 布局（4 列 x 2 行，col 3 空闲）：
+ *   | PX | PY | PZ |   |
+ *   | NX | NY | NZ |   |
  *
  * 异步处理：
  * - 首次 buildAtlas() 绘制时纹理可能仍是 fallback
- * - createAtlas() 返回 atlas 纹理后，会轮询各面纹理是否已加载（image 变为 HTMLImageElement）
+ * - createAtlas() 返回 atlas 纹理后，会轮询各面纹理是否已加载
  * - 全部加载后自动重建 atlas canvas 并更新 atlas.image
  * ============================================================
  */
@@ -216,6 +218,156 @@ export class BoxTextureAtlasUtil {
     setTimeout(check, intervalMs)
   }
 
+  /* ================= Shader 空间投影（替代 UV 烘焙） ================= */
+
+  /**
+   * 将 atlas 着色器注入材质，以在片段着色器中做逐像素空间投影。
+   *
+   * 与 applyUVToGeometry 的顶点 UV 烘焙不同，此方法在 shader 中
+   * 计算 fract(worldPos) → 面 UV → atlas tile 坐标，彻底避免
+   * 顶点插值带来的边界回绕 / 拉伸问题。
+   *
+   * @param {THREE.Material} material
+   * @param {import('../../texture/texset/TextureSet.js').TextureSet} textureSet
+   * @param {Object} [options]
+   * @param {number} [options.tileSize=16]
+   */
+  static applyShaderToMaterial(material, textureSet, options = {}) {
+    if (!material || material.userData?.atlasShaderInjected) return
+    if (!textureSet.isMultiple()) return
+
+    material.userData = material.userData || {}
+    material.userData.atlasShaderInjected = true
+
+    const N = options.tileSize || this._detectTileSize(textureSet) || this.DEFAULT_TILE_SIZE
+    const P = options.padding ?? this.DEFAULT_PADDING
+    const cols = this.ATLAS_COLS
+    const rows = this.ATLAS_ROWS
+    const cw = N * cols + P * (cols + 1)
+    const ch = N * rows + P * (rows + 1)
+    const step = N + P
+
+    const prevOnBeforeCompile = material.onBeforeCompile
+
+    material.onBeforeCompile = (shader) => {
+
+      /* ---- uniforms ---- */
+      // atlas 布局参数（片段着色器据此将面 UV 映射到对应 tile）
+      shader.uniforms.uAtlasTileSize = { value: N }
+      shader.uniforms.uAtlasPadding = { value: P }
+      shader.uniforms.uAtlasStep   = { value: step }
+      shader.uniforms.uAtlasCW     = { value: cw }
+      shader.uniforms.uAtlasCH     = { value: ch }
+      // 六面 tile 的 (col, row) 索引，打包为 vec2[6]
+      // 顺序：px=0, nx=1, py=2, ny=3, pz=4, nz=5
+      const tileIdx = [
+        this.FACE_TILES.px.col, this.FACE_TILES.px.row,
+        this.FACE_TILES.nx.col, this.FACE_TILES.nx.row,
+        this.FACE_TILES.py.col, this.FACE_TILES.py.row,
+        this.FACE_TILES.ny.col, this.FACE_TILES.ny.row,
+        this.FACE_TILES.pz.col, this.FACE_TILES.pz.row,
+        this.FACE_TILES.nz.col, this.FACE_TILES.nz.row,
+      ]
+      shader.uniforms.uAtlasTiles = { value: tileIdx }
+
+      /* ---- vertex ---- */
+      shader.vertexShader = /* glsl */`
+        varying vec3 vAtlasWorldPos;
+        varying vec3 vAtlasWorldNormal;
+      ` + shader.vertexShader
+
+      shader.vertexShader = shader.vertexShader.replace(
+        'void main() {',
+        /* glsl */`
+        void main() {
+          vAtlasWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
+          vAtlasWorldNormal = normalize(mat3(transpose(inverse(modelMatrix))) * normal);
+        `
+      )
+
+      /* ---- fragment header ---- */
+      shader.fragmentShader = /* glsl */`
+        uniform float uAtlasTileSize;
+        uniform float uAtlasPadding;
+        uniform float uAtlasStep;
+        uniform float uAtlasCW;
+        uniform float uAtlasCH;
+        uniform vec2 uAtlasTiles[6];
+
+        varying vec3 vAtlasWorldPos;
+        varying vec3 vAtlasWorldNormal;
+      ` + shader.fragmentShader
+
+      /* ---- 替换 map_fragment ---- */
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <map_fragment>',
+        /* glsl */`
+          vec3 p = vAtlasWorldPos;
+          vec3 n = normalize(vAtlasWorldNormal);
+          vec3 an = abs(n);
+
+          vec2 faceUV;
+          int idx;
+
+          if (an.x >= an.y && an.x >= an.z) {
+            if (n.x > 0.0) {
+              // +X → PX
+              faceUV = vec2(1.0 - fract(p.z), fract(p.y));
+              idx = 0;
+            } else {
+              // -X → NX
+              faceUV = vec2(fract(p.z), fract(p.y));
+              idx = 1;
+            }
+          } else if (an.y > an.z) {
+            if (n.y > 0.0) {
+              // +Y → PY
+              faceUV = vec2(fract(p.x), 1.0 - fract(p.z));
+              idx = 2;
+            } else {
+              // -Y → NY
+              faceUV = vec2(fract(p.x), fract(p.z));
+              idx = 3;
+            }
+          } else {
+            if (n.z > 0.0) {
+              // +Z → PZ
+              faceUV = vec2(fract(p.x), fract(p.y));
+              idx = 4;
+            } else {
+              // -Z → NZ
+              faceUV = vec2(1.0 - fract(p.x), fract(p.y));
+              idx = 5;
+            }
+          }
+
+          // 将 [0,1) 的 faceUV 映射到 atlas 图块
+          float step = uAtlasStep;
+          float col = uAtlasTiles[idx].x;
+          float row = uAtlasTiles[idx].y;
+
+          float au0 = (col * step + uAtlasPadding) / uAtlasCW;
+          float au1 = (col * step + uAtlasPadding + uAtlasTileSize) / uAtlasCW;
+          // Canvas → GL 的 Y 翻转
+          float av0 = 1.0 - (row * step + uAtlasPadding + uAtlasTileSize) / uAtlasCH;
+          float av1 = 1.0 - (row * step + uAtlasPadding) / uAtlasCH;
+
+          vec2 atlasUV = vec2(
+            au0 + faceUV.x * (au1 - au0),
+            av0 + faceUV.y * (av1 - av0)
+          );
+
+          vec4 texColor = texture2D(map, atlasUV);
+          diffuseColor *= texColor;
+        `
+      )
+
+      if (prevOnBeforeCompile) prevOnBeforeCompile(shader)
+    }
+
+    material.needsUpdate = true
+  }
+
   /* ================= Geometry UV 重映射 ================= */
 
   // Shader 面公式（与 BoxSixMappingUtil 一致），从顶点世界位置算 UV
@@ -236,8 +388,6 @@ export class BoxTextureAtlasUtil {
     const index = geometry.getIndex()
     const groups = geometry.groups
     const faceOrder = ['px', 'nx', 'py', 'ny', 'pz', 'nz']
-    const frac = (v) => v - Math.floor(v)
-
     const N = options.tileSize || this._detectTileSize(textureSet) || this.DEFAULT_TILE_SIZE
     const P = options.padding ?? this.DEFAULT_PADDING
     const step = N + P
@@ -249,6 +399,8 @@ export class BoxTextureAtlasUtil {
       av0: 1 - (row * step + P + N) / ch,
       av1: 1 - (row * step + P) / ch,
     })
+
+    const frac = (v) => v - Math.floor(v)
 
     const doFace = (verts, faceName) => {
       const tile = this.FACE_TILES[faceName]
